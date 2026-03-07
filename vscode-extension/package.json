@@ -1,0 +1,73 @@
+{
+  "name": "devglobe",
+  "displayName": "DevGlobe",
+  "description": "Show your live coding presence on the DevGlobe world map",
+  "version": "0.3.0",
+  "publisher": "devglobe",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devglobe/devglobe"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devglobe-sidebar",
+          "title": "DevGlobe",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "devglobe-sidebar": [
+        {
+          "type": "webview",
+          "id": "devglobe.sidebarView",
+          "name": "DevGlobe"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "devglobe.setStatus",
+        "title": "DevGlobe: Set Status Message"
+      }
+    ],
+    "configuration": {
+      "title": "DevGlobe",
+      "properties": {
+        "devglobe.statusMessage": {
+          "type": "string",
+          "default": "",
+          "description": "Your current status message (max 100 chars)"
+        },
+        "devglobe.trackingEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether DevGlobe heartbeat tracking is active"
+        },
+        "devglobe.shareRepo": {
+          "type": "boolean",
+          "default": false,
+          "description": "Share your GitHub repository on your DevGlobe profile"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# Node
+node_modules/
+out/
+*.vsix
+
+# JetBrains / Gradle
+build/
+.gradle/
+.intellijPlatform/
+*.iml
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

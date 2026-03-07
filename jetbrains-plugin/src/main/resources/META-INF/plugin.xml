@@ -1,0 +1,36 @@
+<idea-plugin>
+    <id>xyz.devglobe.plugin</id>
+    <name>DevGlobe</name>
+    <vendor email="contact@devglobe.xyz" url="https://devglobe.xyz">DevGlobe</vendor>
+
+    <description><![CDATA[
+    Show your live coding presence on the DevGlobe world map.<br/>
+    Track your coding time, language, and activity in real-time on an interactive 3D globe.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+            serviceImplementation="xyz.devglobe.plugin.settings.DevGlobeSettings"/>
+        <applicationService
+            serviceImplementation="xyz.devglobe.plugin.core.DevGlobeTracker"/>
+
+        <toolWindow
+            id="DevGlobe"
+            anchor="right"
+            icon="/icons/devglobe.svg"
+            factoryClass="xyz.devglobe.plugin.ui.SidebarFactory"/>
+
+        <statusBarWidgetFactory
+            id="devglobe.statusBar"
+            implementation="xyz.devglobe.plugin.ui.DevGlobeStatusBarFactory"
+            order="after position"/>
+
+        <postStartupActivity
+            implementation="xyz.devglobe.plugin.DevGlobeStartupActivity"/>
+
+        <notificationGroup id="DevGlobe"
+            displayType="BALLOON"/>
+    </extensions>
+</idea-plugin>
