@@ -3,20 +3,23 @@ import { exec } from 'child_process';
 import * as vscode from 'vscode';
 import { log } from './logger';
 
-/** Cache TTL for git operations (5 minutes). */
-const GIT_CACHE_TTL = 5 * 60 * 1000;
+/** Cache TTL for repo detection (5 minutes). */
+const REPO_CACHE_TTL = 5 * 60 * 1000;
 
 /** Cached repo detection. */
 let cachedRepo: string | null = null;
 let cachedRepoCwd: string | null = null;
 let repoFetchedAt = 0;
 
-/** Last known HEAD hash — used to detect new commits. */
-let lastHeadHash: string | null = null;
-let headCheckedAt = 0;
+/** Last known remote ref hash — used to detect new pushes. */
+let lastRemoteHash: string | null = null;
 
-/** Cached commit stats. */
-let cachedCommitStats: { insertions: number; deletions: number } | null = null;
+/** Pending commit stats detected by the file watcher. */
+let pendingStats: { insertions: number; deletions: number } | null = null;
+
+/** Active file watcher disposable. */
+let headWatcher: vscode.Disposable | null = null;
+let watchedGitDir: string | null = null;
 
 /**
  * Promisified exec with timeout. Resolves to trimmed stdout or null on error.
@@ -32,13 +35,62 @@ function execAsync(cmd: string, cwd: string, timeout: number): Promise<string | 
 
 /**
  * Returns the working directory of the currently active file.
- * Using the file's own directory (rather than the workspace root) handles
- * mono-repos and parent-folder workspaces correctly.
  */
 function getActiveCwd(): string | null {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return null;
     return path.dirname(editor.document.uri.fsPath);
+}
+
+/**
+ * Finds the .git directory for a given working directory.
+ */
+async function findGitDir(cwd: string): Promise<string | null> {
+    const result = await execAsync('git rev-parse --git-dir', cwd, 5000);
+    if (!result) return null;
+    return path.isAbsolute(result) ? result : path.resolve(cwd, result);
+}
+
+/**
+ * Sets up a file watcher on the remote tracking refs.
+ * Watches refs/remotes/origin/ so stats are only collected after a push.
+ */
+async function setupWatcher(cwd: string): Promise<void> {
+    const gitDir = await findGitDir(cwd);
+    if (!gitDir || gitDir === watchedGitDir) return;
+
+    // Clean up old watcher
+    headWatcher?.dispose();
+    watchedGitDir = gitDir;
+
+    // Watch refs/remotes/origin/ — updated on git push / git fetch
+    const refsPattern = new vscode.RelativePattern(
+        vscode.Uri.file(path.join(gitDir, 'refs', 'remotes', 'origin')),
+        '**/*',
+    );
+    const watcher = vscode.workspace.createFileSystemWatcher(refsPattern);
+
+    const onRefChange = async () => {
+        const remoteHash = await execAsync('git log --remotes=origin -1 --format=%H', cwd, 5000);
+        if (!remoteHash || remoteHash === lastRemoteHash) return;
+        lastRemoteHash = remoteHash;
+        log.debug('Push detected via file watcher');
+        pendingStats = await fetchStatsForCwd(cwd);
+    };
+
+    watcher.onDidChange(onRefChange);
+    watcher.onDidCreate(onRefChange);
+
+    headWatcher = watcher;
+}
+
+/**
+ * Disposes the current file watcher. Call on extension deactivation.
+ */
+export function disposeGitWatcher(): void {
+    headWatcher?.dispose();
+    headWatcher = null;
+    watchedGitDir = null;
 }
 
 /**
@@ -53,7 +105,7 @@ export async function detectRepo(): Promise<string | null> {
     if (!cwd) return null;
 
     // Return cached result if still fresh and same directory
-    if (cwd === cachedRepoCwd && Date.now() - repoFetchedAt < GIT_CACHE_TTL) {
+    if (cwd === cachedRepoCwd && Date.now() - repoFetchedAt < REPO_CACHE_TTL) {
         return cachedRepo;
     }
 
@@ -92,32 +144,10 @@ export async function detectRepo(): Promise<string | null> {
     return null;
 }
 
-/**
- * Returns the total insertions/deletions from all commits in the last 24 hours,
- * but only when a new commit is detected (HEAD hash changed).
- * Returns null if HEAD has not changed since the last call.
- * Results are cached for 5 minutes.
- */
-export async function getCommitStats(): Promise<{ insertions: number; deletions: number } | null> {
-    const cwd = getActiveCwd();
-    if (!cwd) return null;
-
-    // Skip HEAD check if we checked recently
-    if (Date.now() - headCheckedAt < GIT_CACHE_TTL) return null;
-
-    const head = await execAsync('git rev-parse HEAD', cwd, 5000);
-    if (!head) return null;
-
-    headCheckedAt = Date.now();
-
-    if (head === lastHeadHash) return null; // no new commit
-    lastHeadHash = head;
-
-    const out = await execAsync('git log --since="24 hours ago" --shortstat --format=""', cwd, 10000);
-    if (!out) {
-        cachedCommitStats = { insertions: 0, deletions: 0 };
-        return cachedCommitStats;
-    }
+/** Fetches 24h commit stats from pushed commits only. */
+async function fetchStatsForCwd(cwd: string): Promise<{ insertions: number; deletions: number }> {
+    const out = await execAsync('git log --remotes=origin --since="24 hours ago" --shortstat --format=""', cwd, 10000);
+    if (!out) return { insertions: 0, deletions: 0 };
 
     let totalIns = 0;
     let totalDel = 0;
@@ -129,6 +159,34 @@ export async function getCommitStats(): Promise<{ insertions: number; deletions:
     }
 
     log.debug(`Commit stats (24h): +${totalIns} -${totalDel}`);
-    cachedCommitStats = { insertions: totalIns, deletions: totalDel };
-    return cachedCommitStats;
+    return { insertions: totalIns, deletions: totalDel };
+}
+
+/**
+ * Returns commit stats if a push was detected (via file watcher on remote refs).
+ * Sets up the file watcher on first call.
+ */
+export async function getCommitStats(): Promise<{ insertions: number; deletions: number } | null> {
+    const cwd = getActiveCwd();
+    if (!cwd) return null;
+
+    // Ensure file watcher is set up for this repo
+    await setupWatcher(cwd);
+
+    // If the watcher already detected a push, return the pending stats
+    if (pendingStats) {
+        const stats = pendingStats;
+        pendingStats = null;
+        return stats;
+    }
+
+    // First call: initialize remote hash and return initial stats
+    if (lastRemoteHash === null) {
+        const remoteHash = await execAsync('git log --remotes=origin -1 --format=%H', cwd, 5000);
+        if (!remoteHash) return null;
+        lastRemoteHash = remoteHash;
+        return fetchStatsForCwd(cwd);
+    }
+
+    return null;
 }

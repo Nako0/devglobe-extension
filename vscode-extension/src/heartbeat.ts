@@ -55,7 +55,6 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
 
     const body: Record<string, unknown> = {
         p_key: apiKey,
-        p_hour: new Date().getHours(),
     };
 
     if (geo) {
@@ -86,7 +85,7 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-        res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/heartbeat_v2`, {
+        res = await fetch(`${SUPABASE_URL}/functions/v1/heartbeat`, {
             method: 'POST',
             headers: HEADERS,
             body: JSON.stringify(body),

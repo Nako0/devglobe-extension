@@ -10,7 +10,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
-import java.util.Calendar
 
 class NetworkError(message: String) : Exception(message)
 class ApiError(val status: Int, body: String) : Exception("HTTP $status: $body")
@@ -43,7 +42,6 @@ object HeartbeatService {
 
         val json = JsonObject().apply {
             addProperty("p_key", apiKey)
-            addProperty("p_hour", Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
 
             if (geo != null) {
                 geo.city?.let { addProperty("p_city", it) }
@@ -70,7 +68,7 @@ object HeartbeatService {
         val response: HttpResponse<String>
         try {
             val req = HttpRequest.newBuilder()
-                .uri(URI.create("${Constants.SUPABASE_URL}/rest/v1/rpc/heartbeat_v2"))
+                .uri(URI.create("${Constants.SUPABASE_URL}/functions/v1/heartbeat"))
                 .timeout(Duration.ofSeconds(Constants.FETCH_TIMEOUT_SECONDS))
                 .header("Content-Type", "application/json")
                 .header("apikey", Constants.SUPABASE_ANON_KEY)

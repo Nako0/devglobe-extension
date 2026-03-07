@@ -36,7 +36,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
 }
 
 /**
- * Provider 1: freeipapi.com (free, HTTPS, no key required)
+ * Provider 1: freeipapi.com
  */
 async function fromFreeIpApi(): Promise<GeoResult | null> {
     const data = await fetchJson('https://freeipapi.com/api/json') as {
@@ -57,7 +57,7 @@ async function fromFreeIpApi(): Promise<GeoResult | null> {
 }
 
 /**
- * Provider 2 (fallback): ipapi.co (free tier, HTTPS, no key required)
+ * Provider 2 (fallback): ipapi.co
  */
 async function fromIpApiCo(): Promise<GeoResult | null> {
     const data = await fetchJson('https://ipapi.co/json/') as {

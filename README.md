@@ -1,71 +1,71 @@
-<h1 align="center">DevGlobe — Extensions IDE</h1>
+<h1 align="center">DevGlobe — IDE Extensions</h1>
 
 <p align="center">
-  <strong>Apparaissez sur un globe 3D en temps reel pendant que vous codez.</strong><br/>
-  Extensions officielles pour <a href="https://devglobe.xyz">devglobe.xyz</a>
+  <strong>Show up on a 3D globe in real time while you code.</strong><br/>
+  Official extensions for <a href="https://devglobe.xyz">devglobe.xyz</a>
 </p>
 
 <p align="center">
   <a href="#-vs-code">VS Code</a> &nbsp;·&nbsp;
   <a href="#-jetbrains">JetBrains</a> &nbsp;·&nbsp;
-  <a href="#-vie-privee--securite">Vie privee</a> &nbsp;·&nbsp;
-  <a href="#-comment-ca-marche-techniquement">Technique</a>
+  <a href="#-privacy--security">Privacy</a> &nbsp;·&nbsp;
+  <a href="#-how-it-works-technically">Technical</a>
 </p>
 
 ---
 
-> **Open source & transparent** — Ces extensions sont 100% open source. Aucun code n'est lu, aucune donnee sensible n'est collectee. Vous pouvez auditer chaque ligne de ce depot. On explique en detail tout ce qui est envoye (et ce qui ne l'est pas) dans la section [Vie privee & Securite](#vie-privee--securite).
+> **Open source & transparent** — These extensions are 100% open source. No code is read, no sensitive data is collected. You can audit every line of this repository. We explain in detail everything that is sent (and what is not) in the [Privacy & Security](#privacy--security) section.
 
 ---
 
-## Pourquoi DevGlobe ?
+## Why DevGlobe?
 
-DevGlobe est une plateforme gratuite et open source qui affiche les developpeurs actifs sur un globe 3D interactif. Quand vous codez, un marqueur s'allume a votre position sur la carte. Les autres developpeurs vous voient en direct.
+DevGlobe is a free and open source platform that displays active developers on an interactive 3D globe. When you code, a marker lights up at your position on the map. Other developers see you in real time.
 
-**Ce que ca vous apporte :**
+**What it brings you:**
 
-- **De la visibilite** — Votre profil GitHub, votre compte X, vos projets et vos liens sont accessibles a tous les developpeurs presents sur le globe. C'est une vitrine pour ce que vous construisez. Les noms de vos repos ne sont visibles que si vous le decidez.
+- **Visibility** — Your GitHub profile, your X account, your projects and your links are accessible to all developers on the globe. It's a showcase for what you're building. Your repo names are only visible if you choose so.
 
-- **Du reseau** — Vous voyez qui code en ce moment et dans quel langage. Cliquez sur un marqueur pour decouvrir un developpeur, ses projets, ses liens sociaux. C'est un moyen simple de rencontrer des gens qui partagent vos technos.
+- **Networking** — You see who's coding right now and in which language. Click a marker to discover a developer, their projects, their social links. It's a simple way to meet people who share your tech stack.
 
-- **De la motivation** — Un classement hebdomadaire classe tous les developpeurs par temps de code. Votre streak (jours consecutifs de code) est visible sur votre profil. C'est un petit moteur de motivation au quotidien.
+- **Motivation** — A weekly leaderboard ranks all developers by coding time. Your streak (consecutive days of coding) is visible on your profile. It's a small daily motivation boost.
 
-- **Une vitrine pour vos projets** — Vous pouvez mettre en avant jusqu'a 10 projets sur le globe. Les projets les plus actifs (temps de code + activite Git) sont affiches dans un carousel visible par tous les visiteurs du site. Si vous avez une startup, vous pouvez lier vos donnees [TrustMRR](https://trustmrr.com) pour afficher votre MRR, votre croissance et vos metriques publiquement.
-
----
-
-## Le globe en bref
-
-Sur [devglobe.xyz](https://devglobe.xyz), vous trouvez :
-
-- **Un globe 3D** avec les developpeurs actifs en temps reel (marqueurs colores ou avatars GitHub)
-- **Des profils cliquables** — langage actif, temps de session, bio, stack technique, liens sociaux (GitHub, X, Reddit), et repo si le developpeur a choisi de le partager
-- **Un classement hebdomadaire** — top developpeurs par temps de code, mis a jour en direct
-- **Un carousel de projets en vedette** — les projets les plus actifs, classes par un score : `0.5 × temps de code sur le repo + (insertions − suppressions)` sur les dernières 24 heures
-- **Un fil d'activite** — qui vient de se connecter, qui est parti
-- **Une recherche** — trouvez un developpeur par nom ou pseudo GitHub
-- **Des stats detaillees** — temps du jour, streak, repartition des langages sur 30 jours, activite par repo sur 24h (si le developpeur a choisi de partager son activité git)
-
-**Suppression de compte** — Si vous supprimez votre compte, toutes vos donnees sont effacees. Aucune information n'est conservee.
+- **Project showcase** — You can feature up to 10 projects on the globe. The most active projects (coding time + Git activity) are displayed in a carousel visible to all site visitors. If you have a startup, you can link your [TrustMRR](https://trustmrr.com) data to publicly display your MRR, growth and metrics.
 
 ---
 
-## Comment ca marche
+## The globe at a glance
+
+On [devglobe.xyz](https://devglobe.xyz), you'll find:
+
+- **A 3D globe** with active developers in real time (colored markers or GitHub avatars)
+- **Clickable profiles** — active language, session time, bio, tech stack, social links (GitHub, X, Reddit), and repo if the developer chose to share it
+- **A weekly leaderboard** — top developers by coding time, updated live
+- **A featured projects carousel** — the most active projects, ranked by a score: `0.5 × coding time on the repo + (insertions − deletions)` over the last 24 hours
+- **An activity feed** — who just connected, who left
+- **A search** — find a developer by name or GitHub username
+- **Detailed stats** — today's time, streak, language breakdown over 30 days, per-repo activity over 24h (if the developer chose to share their git activity)
+
+**Account deletion** — If you delete your account, all your data is erased. No information is kept.
+
+---
+
+## How it works
 
 ```
-┌──────────────┐    heartbeat (30s)    ┌──────────────┐    temps reel    ┌──────────────┐
-│  Votre IDE    │ ───────────────────► │     BDD       │ ──────────────► │  Globe 3D     │
-│  (extension)  │  lang, position, repo │  (PostgreSQL) │                 │  devglobe.xyz │
+┌──────────────┐    heartbeat (30s)    ┌──────────────┐    real time     ┌──────────────┐
+│  Your IDE     │ ───────────────────► │   Database    │ ──────────────► │  3D Globe     │
+│  (extension)  │  lang, position, repo│  (PostgreSQL) │                 │  devglobe.xyz │
 └──────────────┘                       └──────────────┘                  └──────────────┘
 ```
 
-1. **Connectez-vous** sur [devglobe.xyz](https://devglobe.xyz) avec GitHub
-2. **Copiez votre cle API** depuis les parametres du site
-3. **Installez l'extension** dans VS Code ou votre IDE JetBrains
-4. **Collez la cle** dans la sidebar de l'extension
-5. **Vous etes en ligne** — votre marqueur apparait sur le globe
+1. **Sign in** on [devglobe.xyz](https://devglobe.xyz) with GitHub
+2. **Copy your API key** from the site settings
+3. **Install the extension** in VS Code or your JetBrains IDE
+4. **Paste the key** in the extension sidebar
+5. **You're online** — your marker appears on the globe
 
-L'extension envoie un **heartbeat toutes les 30 secondes** tant que vous codez activement. Si vous arretez de taper pendant plus d'1 minute, les heartbeats se mettent en pause automatiquement. **Apres 10 minutes sans activite, vous disparaissez du globe** et etes considere comme inactif. 
+The extension sends a **heartbeat every 30 seconds** as long as you're actively coding. If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
 
 ---
 
@@ -73,209 +73,209 @@ L'extension envoie un **heartbeat toutes les 30 secondes** tant que vous codez a
 
 ### Installation
 
-1. Installez depuis le [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=devglobe.devglobe)
-2. Ouvrez la sidebar **DevGlobe** (icone globe dans la barre d'activite)
-3. Collez votre cle API → **Connect**
+1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=devglobe.devglobe)
+2. Open the **DevGlobe** sidebar (globe icon in the activity bar)
+3. Paste your API key → **Connect**
 
-### Fonctionnalites
+### Features
 
-| Fonctionnalite | Description |
-|-----------------|-------------|
-| **Heartbeat en direct** | Envoie votre activite toutes les 30s. Pause automatique apres 1 min d'inactivite. |
-| **Detection de langage** | Detecte 48+ langages depuis votre onglet editeur actif. |
-| **Integration Git** | Detecte votre repo depuis le remote git. Compte les insertions/suppressions sur 24h a chaque nouveau commit. |
-| **Message de statut** | Ecrivez ce sur quoi vous travaillez — visible sur votre profil globe. |
-| **Partage du repo** | **Vous decidez.** Le nom de votre repo n'est jamais affiche sauf si vous activez explicitement ce toggle (desactive par defaut). |
-| **Reprise hors-ligne** | Detecte la perte de connexion et reprend automatiquement au retour du reseau. |
-| **Barre de statut** | Affiche votre temps de code du jour (ex. `2h 15m`) dans la barre VS Code. |
+| Feature | Description |
+|---------|-------------|
+| **Live heartbeat** | Sends your activity every 30s. Auto-pauses after 1 min of inactivity. |
+| **Language detection** | Detects 48+ languages from your active editor tab. |
+| **Git integration** | Detects your repo from the git remote. Counts insertions/deletions over 24h on each new commit. |
+| **Status message** | Write what you're working on — visible on your globe profile. |
+| **Repo sharing** | **You decide.** Your repo name is never shown unless you explicitly enable this toggle (disabled by default). |
+| **Offline recovery** | Detects connection loss and automatically resumes when the network is back. |
+| **Status bar** | Displays your coding time for today (e.g. `2h 15m`) in the VS Code status bar. |
 
 ### Sidebar
 
-Deux vues dans le panneau lateral :
+Two views in the side panel:
 
-- **Connexion** — champ de cle API (masque) + lien pour obtenir votre cle sur devglobe.xyz
-- **Tableau de bord** — temps de code en direct, langage actif, message de statut, toggle partage repo, boutons demarrer/arreter, deconnexion
+- **Login** — masked API key field + link to get your key on devglobe.xyz
+- **Dashboard** — live coding time, active language, status message, repo sharing toggle, start/stop buttons, logout
 
-### Commande
+### Command
 
-`DevGlobe: Set Status Message` — accessible depuis la Palette de commandes (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+`DevGlobe: Set Status Message` — accessible from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 
-### Prerequis
+### Requirements
 
 - VS Code **1.80+**
-- **Zero dependance externe** — utilise uniquement les APIs natives VS Code et Node.js
+- **Zero external dependencies** — uses only native VS Code and Node.js APIs
 
 ---
 
 ## JetBrains
 
-Compatible avec **tous les IDEs JetBrains** : IntelliJ IDEA, WebStorm, PyCharm, GoLand, Rider, PhpStorm, CLion, RubyMine, DataGrip, Android Studio.
+Compatible with **all JetBrains IDEs**: IntelliJ IDEA, WebStorm, PyCharm, GoLand, Rider, PhpStorm, CLion, RubyMine, DataGrip, Android Studio.
 
 ### Installation
 
-1. Installez depuis le [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/devglobe) ou telechargez le `.zip` depuis les [Releases](https://github.com/devglobe/devglobe-extensions/releases)
-2. Si installation manuelle : **Settings → Plugins → ⚙️ → Install Plugin from Disk**
-3. Ouvrez la fenetre **DevGlobe** (sidebar droite)
-4. Collez votre cle API → **Connect**
+1. Install from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/devglobe) or download the `.zip` from the [Releases](https://github.com/devglobe/devglobe-extensions/releases)
+2. For manual installation: **Settings → Plugins → ⚙️ → Install Plugin from Disk**
+3. Open the **DevGlobe** tool window (right sidebar)
+4. Paste your API key → **Connect**
 
-### Fonctionnalites
+### Features
 
-Memes fonctionnalites que l'extension VS Code, adaptees a la plateforme JetBrains :
+Same features as the VS Code extension, adapted for the JetBrains platform:
 
-| Fonctionnalite | Description |
-|-----------------|-------------|
-| **Heartbeat en direct** | Intervalle de 30s, pause apres 1 min d'inactivite. |
-| **Detection de langage** | Utilise le systeme natif FileType de JetBrains — supporte tous les langages de votre IDE sans configuration. |
-| **Integration Git** | Meme detection de repo + stats de commits. |
-| **Message de statut** | Editable depuis le panneau lateral, persiste dans les parametres IDE. |
-| **Partage du repo** | Meme toggle que VS Code — votre repo reste invisible sauf activation explicite. |
-| **Reprise hors-ligne** | Detection automatique + reprise au retour du reseau. |
-| **Barre de statut** | Affiche `⏱ 2h 15m` dans la barre de statut de l'IDE. |
-| **Notifications** | Notifications natives de l'IDE pour chaque action (connexion, tracking, statut, erreurs). |
+| Feature | Description |
+|---------|-------------|
+| **Live heartbeat** | 30s interval, pauses after 1 min of inactivity. |
+| **Language detection** | Uses JetBrains' native FileType system — supports all languages in your IDE without configuration. |
+| **Git integration** | Same repo detection + commit stats. |
+| **Status message** | Editable from the side panel, persists in IDE settings. |
+| **Repo sharing** | Same toggle as VS Code — your repo stays invisible unless explicitly enabled. |
+| **Offline recovery** | Automatic detection + resume when the network is back. |
+| **Status bar** | Displays `⏱ 2h 15m` in the IDE status bar. |
+| **Notifications** | Native IDE notifications for every action (connection, tracking, status, errors). |
 
-### Compatibilite
+### Compatibility
 
-- **Builds IDE** : 233 — 253.* (2023.3 a 2025.3)
-- **Java** : 17+
-
----
-
-## Vie privee & Securite
-
-On sait que quand on installe une extension, on fait confiance au developpeur. On prend ca au serieux. Voici exactement ce que fait l'extension — pas de zone grise.
-
-### Ce que l'extension envoie
-
-| Donnee | Envoyee | Detail |
-|--------|---------|--------|
-| Langage de programmation | Oui | Le nom du langage de votre onglet actif (ex. "TypeScript"). Rien d'autre. |
-| Position approximative | Oui | Ville + coordonnees **arrondies a ~11 km**. Vous apparaissez comme une zone sur le globe, pas une adresse. |
-| Nom du repo | **Vous decidez** | Format `owner/repo` uniquement. **Le partage est desactive par defaut.** Personne ne voit votre repo sauf si vous activez explicitement le toggle "Partager le repo". |
-| Stats de commits | Oui | Nombre d'insertions et de suppressions sur 24h. Envoye une seule fois par nouveau commit detecte. |
-| Temps de code | Oui | Accumule par jour, par langage. |
-| Message de statut | Oui | Uniquement ce que vous ecrivez vous-meme. |
-
-### Ce que l'extension n'envoie PAS
-
-| Donnee | Envoyee |
-|--------|---------|
-| Votre code source | **Jamais** |
-| Le contenu de vos fichiers | **Jamais** |
-| Les noms de vos fichiers | **Jamais** |
-| Les chemins de vos dossiers | **Jamais** |
-| Vos frappes clavier | **Jamais** |
-| Vos messages de commit | **Jamais** |
-| Vos branches Git | **Jamais** |
-| Votre adresse IP | **Jamais stockee** — utilisee uniquement pour determiner la ville via un service de geolocalisation, puis jetee, l'IP reste sur votre IDE|
-| Vos variables d'environnement | **Jamais** |
-| Vos cles SSH ou credentials | **Jamais** |
-
-### Localisation : comment ca marche exactement
-
-L'extension determine votre ville a partir de votre adresse IP via un service de geolocalisation externe (freeipapi.com, avec fallback sur ipapi.co). Les deux sont des services publics gratuits, sans cle API.
-
-**Les coordonnees sont volontairement degradees :**
-- Arrondies a 1 decimale, soit **environ 11 km de precision**
-- Exemple : `48.8566, 2.3522` (adresse precise) → `48.9, 2.4` (zone large)
-- Resultat : vous apparaissez dans une region sur le globe, pas a votre adresse
-
-La position est **mise en cache pendant 1 heure** — l'extension ne rappelle pas le service de geolocalisation a chaque heartbeat.
-
-**Votre adresse IP n'est jamais transmise a DevGlobe.** Elle est utilisee uniquement par le service de geolocalisation tiers pour determiner votre ville, puis elle est jetee.
-
-### Stockage de la cle API
-
-Votre cle API DevGlobe n'est **jamais stockee en texte brut**.
-
-| IDE | Methode de stockage |
-|-----|---------------------|
-| VS Code | **SecretStorage** — trousseau systeme de votre OS (macOS Keychain, Windows Credential Manager, Linux libsecret) |
-| JetBrains | **PasswordSafe** — gestionnaire de credentials natif de l'IDE, adosse au trousseau OS |
-
-L'extension VS Code migre automatiquement les anciennes cles qui etaient en clair dans `settings.json` vers le trousseau securise.
-
-### Securite reseau
-
-- **HTTPS uniquement** (TLS 1.2+) — aucun fallback HTTP
-- Les heartbeats vont directement vers la base de donnees — aucun serveur intermediaire
-- Le panneau lateral VS Code utilise une **Content Security Policy** avec un nonce cryptographique pour empecher l'injection de scripts
-- Cote serveur, des politiques de securite au niveau des lignes (Row Level Security) isolent les donnees de chaque utilisateur
-
-### Code ouvert
-
-Les deux extensions sont open source. Vous pouvez lire chaque ligne de code qui tourne sur votre machine. C'est le but de ce depot.
+- **IDE builds**: 233 — 253.* (2023.3 to 2025.3)
+- **Java**: 17+
 
 ---
 
-## Comment ca marche techniquement
+## Privacy & Security
 
-### Le heartbeat
+We know that when you install an extension, you trust the developer. We take that seriously. Here's exactly what the extension does — no gray area.
 
-Toutes les 30 secondes, si vous avez tape du code dans la derniere minute, l'extension envoie un heartbeat a la base de donnees. Ce heartbeat contient :
+### What the extension sends
+
+| Data | Sent | Detail |
+|------|------|--------|
+| Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
+| Approximate location | Yes | City + coordinates **rounded to ~11 km**. You appear as an area on the globe, not an address. |
+| Repo name | **You decide** | `owner/repo` format only. **Sharing is disabled by default.** Nobody sees your repo unless you explicitly enable the "Share repo" toggle. |
+| Commit stats | Yes | Number of insertions and deletions over 24h. Sent only once per new detected commit. |
+| Coding time | Yes | Accumulated per day, per language. |
+| Status message | Yes | Only what you write yourself. |
+
+### What the extension does NOT send
+
+| Data | Sent |
+|------|------|
+| Your source code | **Never** |
+| Your file contents | **Never** |
+| Your file names | **Never** |
+| Your folder paths | **Never** |
+| Your keystrokes | **Never** |
+| Your commit messages | **Never** |
+| Your Git branches | **Never** |
+| Your IP address | **Never stored** — used only to determine city via a geolocation service, then discarded, the IP stays on your IDE |
+| Your environment variables | **Never** |
+| Your SSH keys or credentials | **Never** |
+
+### Location: how it works exactly
+
+The extension determines your city from your IP address via an external geolocation service (freeipapi.com, with fallback to ipapi.co). Both are free public services, no API key required.
+
+**Coordinates are intentionally degraded:**
+- Rounded to 1 decimal place, i.e. **approximately 11 km precision**
+- Example: `48.8566, 2.3522` (precise address) → `48.9, 2.4` (broad area)
+- Result: you appear in a region on the globe, not at your address
+
+The location is **cached for 1 hour** — the extension does not call the geolocation service on every heartbeat.
+
+**Your IP address is never transmitted to DevGlobe.** It is only used by the third-party geolocation service to determine your city, then discarded.
+
+### API key storage
+
+Your DevGlobe API key is **never stored in plain text**.
+
+| IDE | Storage method |
+|-----|----------------|
+| VS Code | **SecretStorage** — your OS system keychain (macOS Keychain, Windows Credential Manager, Linux libsecret) |
+| JetBrains | **PasswordSafe** — the IDE's native credential manager, backed by the OS keychain |
+
+The VS Code extension automatically migrates old keys that were stored in plain text in `settings.json` to the secure keychain.
+
+### Network security
+
+- **HTTPS only** (TLS 1.2+) — no HTTP fallback
+- Heartbeats go directly to the database — no intermediary server
+- The VS Code side panel uses a **Content Security Policy** with a cryptographic nonce to prevent script injection
+- Server-side, Row Level Security policies isolate each user's data
+
+### Open source
+
+Both extensions are open source. You can read every line of code that runs on your machine. That's the purpose of this repository.
+
+---
+
+## How it works technically
+
+### The heartbeat
+
+Every 30 seconds, if you've typed code in the last minute, the extension sends a heartbeat to the database. This heartbeat contains:
 
 ```
 {
-  cle_api,                    // votre identifiant (stocke dans le trousseau OS)
-  heure,                      // 0-23
-  latitude, longitude,        // arrondis a 1 decimale (~11 km)
-  ville,                      // "Paris, France"
-  langage,                    // "TypeScript"
-  repo,                       // "owner/repo" (envoyé au backend mais l'affichage sur le globe est conditionné selon vos préférences, l'envoi au backend sert pour le calcul du score attribué au projet featured)
-  partage_repo,               // true/false
-  insertions, suppressions    // stats git 24h (sur nouveau commit uniquement)
+  api_key,                      // your identifier (stored in the OS keychain)
+  hour,                         // 0-23
+  latitude, longitude,          // rounded to 1 decimal (~11 km)
+  city,                         // "Paris, France"
+  language,                     // "TypeScript"
+  repo,                         // "owner/repo" (sent to the backend but display on the globe depends on your preferences, sending to the backend is used for featured project score calculation)
+  share_repo,                   // true/false
+  insertions, deletions         // git stats 24h (on new commit only)
 }
 ```
 
-Le serveur repond avec le temps de code total du jour. L'extension met a jour l'affichage dans la sidebar et la barre de statut.
+The server responds with today's total coding time. The extension updates the display in the sidebar and status bar.
 
-### Detection du langage
+### Language detection
 
-- **VS Code** : lit le `languageId` de l'editeur actif, puis le traduit via une table de 48+ langages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
-- **JetBrains** : utilise le systeme natif `FileType` de l'IDE — aucune table manuelle, supporte automatiquement tous les langages que votre IDE supporte
+- **VS Code**: reads the `languageId` of the active editor, then translates it via a table of 48+ languages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
+- **JetBrains**: uses the IDE's native `FileType` system — no manual table, automatically supports all languages your IDE supports
 
-### Integration Git
+### Git integration
 
-L'extension execute `git remote get-url origin` dans le dossier de votre fichier actif et extrait l'identifiant `owner/repo` depuis l'URL (SSH ou HTTPS). Le resultat est mis en cache 5 minutes.
+The extension runs `git remote get-url origin` in your active file's directory and extracts the `owner/repo` identifier from the URL (SSH or HTTPS). The result is cached for 5 minutes.
 
-Quand un nouveau commit est detecte (via `git rev-parse HEAD`), l'extension compte les insertions et suppressions des dernieres 24h via `git log --shortstat`. **Aucun contenu de code, message de commit ou nom de fichier n'est lu.**
+When a new commit is detected (via `git rev-parse HEAD`), the extension counts insertions and deletions over the last 24h via `git log --shortstat`. **No code content, commit message or file name is read.**
 
-### Detection hors-ligne
+### Offline detection
 
-Apres 2 echecs reseau consecutifs, l'extension passe en mode hors-ligne et vous notifie. Des que la connexion revient, elle reprend automatiquement les heartbeats.
+After 2 consecutive network failures, the extension switches to offline mode and notifies you. As soon as the connection is back, it automatically resumes heartbeats.
 
 ### Architecture
 
 ```
 vscode-extension/
 ├── src/
-│   ├── extension.ts      # Cycle de vie, gestion cle API (SecretStorage)
-│   ├── tracker.ts        # Machine d'etat, boucle heartbeat, detection hors-ligne
-│   ├── heartbeat.ts      # Appels HTTP vers la BDD
-│   ├── sidebar.ts        # Panneau lateral (webview HTML/CSS/JS)
-│   ├── geo.ts            # Geolocalisation IP (double fournisseur + fallback)
-│   ├── git.ts            # Detection repo + stats commits
-│   ├── language.ts       # Traduction languageId → nom affiche
-│   ├── logger.ts         # Logs debug/info/warn/error
-│   └── constants.ts      # URLs, timeouts, intervalles
+│   ├── extension.ts      # Lifecycle, API key management (SecretStorage)
+│   ├── tracker.ts        # State machine, heartbeat loop, offline detection
+│   ├── heartbeat.ts      # HTTP calls to the database
+│   ├── sidebar.ts        # Side panel (webview HTML/CSS/JS)
+│   ├── geo.ts            # IP geolocation (dual provider + fallback)
+│   ├── git.ts            # Repo detection + commit stats
+│   ├── language.ts       # languageId → display name translation
+│   ├── logger.ts         # Debug/info/warn/error logs
+│   └── constants.ts      # URLs, timeouts, intervals
 └── package.json
 
 jetbrains-plugin/
 ├── src/main/kotlin/xyz/devglobe/plugin/
 │   ├── core/
-│   │   ├── DevGlobeTracker.kt    # Tracker singleton, scheduler heartbeat
-│   │   ├── HeartbeatService.kt   # Client HTTP
-│   │   ├── GeoService.kt         # Geolocalisation IP (meme logique)
-│   │   ├── GitService.kt         # Detection repo + stats commits
-│   │   ├── LanguageService.kt    # Detection langage via FileType natif
-│   │   ├── TrackerState.kt       # Etat immutable
-│   │   └── Constants.kt          # URLs, timeouts, intervalles
+│   │   ├── DevGlobeTracker.kt    # Singleton tracker, heartbeat scheduler
+│   │   ├── HeartbeatService.kt   # HTTP client
+│   │   ├── GeoService.kt         # IP geolocation (same logic)
+│   │   ├── GitService.kt         # Repo detection + commit stats
+│   │   ├── LanguageService.kt    # Language detection via native FileType
+│   │   ├── TrackerState.kt       # Immutable state
+│   │   └── Constants.kt          # URLs, timeouts, intervals
 │   ├── auth/
-│   │   └── ApiKeyStorage.kt      # Wrapper PasswordSafe (trousseau OS)
+│   │   └── ApiKeyStorage.kt      # PasswordSafe wrapper (OS keychain)
 │   ├── settings/
-│   │   └── DevGlobeSettings.kt   # Persistance des parametres IDE
+│   │   └── DevGlobeSettings.kt   # IDE settings persistence
 │   ├── ui/
-│   │   ├── SidebarPanel.kt       # Panneau Swing (login + dashboard)
-│   │   ├── SidebarFactory.kt     # Integration fenetre d'outil
+│   │   ├── SidebarPanel.kt       # Swing panel (login + dashboard)
+│   │   ├── SidebarFactory.kt     # Tool window integration
 │   │   └── DevGlobeStatusBarFactory.kt
 │   └── DevGlobeStartupActivity.kt
 ├── src/main/resources/META-INF/
@@ -285,7 +285,7 @@ jetbrains-plugin/
 
 ---
 
-## Compiler depuis les sources
+## Build from source
 
 ### VS Code
 
@@ -295,9 +295,9 @@ npm install
 npm run compile
 ```
 
-Tester : `F5` dans VS Code pour lancer un Extension Development Host.
+Test: `F5` in VS Code to launch an Extension Development Host.
 
-Packager : `npx @vscode/vsce package`
+Package: `npx @vscode/vsce package`
 
 ### JetBrains
 
@@ -306,26 +306,26 @@ cd jetbrains-plugin
 ./gradlew buildPlugin
 ```
 
-Le `.zip` sera dans `build/distributions/`.
+The `.zip` will be in `build/distributions/`.
 
-Tester : `./gradlew runIde` ou **Run → Run Plugin** dans IntelliJ.
-
----
-
-## Contribuer
-
-Les contributions sont les bienvenues — corrections, nouvelles fonctionnalites, documentation.
-
-1. Forkez le depot
-2. Creez votre branche (`git checkout -b fix/something`)
-3. Committez vos changements
-4. Ouvrez une Pull Request
+Test: `./gradlew runIde` or **Run → Run Plugin** in IntelliJ.
 
 ---
 
-## Licence
+## Contributing
 
-MIT — voir [LICENSE](LICENSE).
+Contributions are welcome — fixes, new features, documentation.
+
+1. Fork the repository
+2. Create your branch (`git checkout -b fix/something`)
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ---
 

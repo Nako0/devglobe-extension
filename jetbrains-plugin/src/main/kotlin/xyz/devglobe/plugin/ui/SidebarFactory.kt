@@ -27,10 +27,8 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
                     return
                 }
                 ApiKeyStorage.set(apiKey)
-                val settings = DevGlobeSettings.getInstance()
-                settings.state.trackingEnabled = true
-                tracker.start(apiKey)
-                notify(project, "Connected!", NotificationType.INFORMATION)
+                tracker.restoreConnected(apiKey)
+                notify(project, "Connected! Click \"Start Tracking\" to go live.", NotificationType.INFORMATION)
             }
 
             override fun onDisconnect() {

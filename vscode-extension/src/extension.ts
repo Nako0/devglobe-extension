@@ -3,6 +3,7 @@ import { initLogger, log } from './logger';
 import { Tracker } from './tracker';
 import { DevGlobeSidebarProvider } from './sidebar';
 import { updateStatusMessage } from './heartbeat';
+import { disposeGitWatcher } from './git';
 
 // Keys the sidebar is allowed to toggle — prevents arbitrary config modification
 const ALLOWED_TOGGLE_KEYS = new Set(['shareRepo']);
@@ -73,8 +74,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     break;
                 }
                 await context.secrets.store(SECRET_API_KEY, token);
-                tracker.start(token);
-                vscode.window.showInformationMessage('DevGlobe: Connected!');
+                const savedConf = vscode.workspace.getConfiguration('devglobe');
+                tracker.restoreConnected(token, savedConf);
+                sidebar.updateState(tracker.getState());
+                vscode.window.showInformationMessage('DevGlobe: Connected! Click "Start Tracking" to go live.');
                 break;
             }
 
@@ -200,5 +203,5 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 }
 
 export function deactivate(): void {
-    // Cleanup is handled by Tracker.dispose() via context.subscriptions
+    disposeGitWatcher();
 }
