@@ -4,8 +4,41 @@
     <vendor email="contact@devglobe.xyz" url="https://devglobe.xyz">DevGlobe</vendor>
 
     <description><![CDATA[
-    Show your live coding presence on the DevGlobe world map.<br/>
-    Track your coding time, language, and activity in real-time on an interactive 3D globe.
+    <p>Apparaissez sur un globe 3D en temps reel pendant que vous codez. Votre activite s'affiche en direct sur <a href="https://devglobe.xyz">devglobe.xyz</a> — les autres developpeurs vous voient, decouvrent vos projets et vos liens.</p>
+
+    <h3>Fonctionnement</h3>
+    <ol>
+        <li>Connectez-vous sur <a href="https://devglobe.xyz">devglobe.xyz</a> avec GitHub</li>
+        <li>Copiez votre cle API depuis les parametres</li>
+        <li>Ouvrez la fenetre DevGlobe dans votre IDE et collez la cle</li>
+        <li>Vous apparaissez sur le globe</li>
+    </ol>
+    <p>L'extension envoie un heartbeat toutes les 30 secondes tant que vous codez. Pause automatique apres 1 minute d'inactivite. Apres 10 minutes sans activite, vous disparaissez du globe.</p>
+
+    <h3>Fonctionnalites</h3>
+    <ul>
+        <li><b>Heartbeat en direct</b> — votre presence sur le globe en temps reel</li>
+        <li><b>Detection de langage</b> — utilise le systeme natif FileType de votre IDE, supporte tous les langages</li>
+        <li><b>Integration Git</b> — detecte votre repo et compte les insertions/suppressions sur 24h</li>
+        <li><b>Message de statut</b> — dites aux autres sur quoi vous travaillez</li>
+        <li><b>Partage du repo</b> — vous decidez si le nom de votre repo est visible (desactive par defaut)</li>
+        <li><b>Barre de statut</b> — votre temps de code du jour affiche en direct</li>
+        <li><b>Notifications</b> — notifications natives de l'IDE pour chaque action</li>
+        <li><b>Reprise hors-ligne</b> — reprend automatiquement au retour de la connexion</li>
+    </ul>
+
+    <h3>Ce que DevGlobe vous apporte</h3>
+    <ul>
+        <li><b>Visibilite</b> — votre GitHub, votre X, vos projets et vos liens accessibles a tous les devs sur le globe</li>
+        <li><b>Reseau</b> — decouvrez qui code en ce moment, dans quel langage, et retrouvez leurs liens</li>
+        <li><b>Motivation</b> — classement hebdomadaire par temps de code + streak de jours consecutifs</li>
+        <li><b>Vitrine projets</b> — mettez en avant jusqu'a 10 projets sur le globe</li>
+    </ul>
+
+    <h3>Vie privee</h3>
+    <p>Ce plugin est <a href="https://github.com/Nako0/devglobe-extension">open source</a>. Votre code source, le contenu de vos fichiers, vos frappes clavier et votre adresse IP ne sont <b>jamais envoyes</b>. Votre position est approximative (~11 km). Le nom de votre repo n'est visible que si vous l'activez explicitement. Votre cle API est stockee dans le gestionnaire de credentials natif de votre IDE (PasswordSafe).</p>
+
+    <p>Compatible avec tous les IDEs JetBrains : IntelliJ IDEA, WebStorm, PyCharm, GoLand, Rider, PhpStorm, CLion, RubyMine, DataGrip, Android Studio.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

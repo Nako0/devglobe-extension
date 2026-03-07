@@ -27,6 +27,9 @@ intellijPlatform {
             untilBuild = "253.*"
         }
     }
+    publishing {
+        token = providers.environmentVariable("PUBLISH_TOKEN")
+    }
 }
 
 tasks {

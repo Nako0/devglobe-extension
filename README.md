@@ -82,7 +82,7 @@ L'extension envoie un **heartbeat toutes les 30 secondes** tant que vous codez a
 | Fonctionnalite | Description |
 |-----------------|-------------|
 | **Heartbeat en direct** | Envoie votre activite toutes les 30s. Pause automatique apres 1 min d'inactivite. |
-| **Detection de langage** | Detecte 70+ langages depuis votre onglet editeur actif. |
+| **Detection de langage** | Detecte 48+ langages depuis votre onglet editeur actif. |
 | **Integration Git** | Detecte votre repo depuis le remote git. Compte les insertions/suppressions sur 24h a chaque nouveau commit. |
 | **Message de statut** | Ecrivez ce sur quoi vous travaillez — visible sur votre profil globe. |
 | **Partage du repo** | **Vous decidez.** Le nom de votre repo n'est jamais affiche sauf si vous activez explicitement ce toggle (desactive par defaut). |
@@ -230,7 +230,7 @@ Le serveur repond avec le temps de code total du jour. L'extension met a jour l'
 
 ### Detection du langage
 
-- **VS Code** : lit le `languageId` de l'editeur actif, puis le traduit via une table de 70+ langages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
+- **VS Code** : lit le `languageId` de l'editeur actif, puis le traduit via une table de 48+ langages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
 - **JetBrains** : utilise le systeme natif `FileType` de l'IDE — aucune table manuelle, supporte automatiquement tous les langages que votre IDE supporte
 
 ### Integration Git
