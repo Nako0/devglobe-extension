@@ -1,0 +1,6 @@
+{
+  "name": "devglobe",
+  "description": "DevGlobe plugin for Claude Code - appear active on the globe while coding with AI",
+  "version": "1.0.0",
+  "author": { "name": "DevGlobe" }
+}

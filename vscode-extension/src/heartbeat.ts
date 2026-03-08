@@ -64,6 +64,7 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     }
 
     if (activeLang) body.p_lang = activeLang;
+    body.p_editor = 'vscode';
 
     if (repo) {
         body.p_repo = repo;

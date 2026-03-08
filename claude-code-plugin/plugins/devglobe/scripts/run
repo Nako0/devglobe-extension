@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# DevGlobe Claude Code plugin launcher
+# Inspired by wakatime/claude-code-wakatime
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
+ENTRY="$PLUGIN_ROOT/dist/index.js"
+
+if [ ! -f "$ENTRY" ]; then
+  exit 0
+fi
+
+# Find node binary
+if [ -n "${NODE_BIN:-}" ] && [ -x "$NODE_BIN" ]; then
+  NODE="$NODE_BIN"
+elif command -v node >/dev/null 2>&1; then
+  NODE="node"
+elif [ -x "/usr/local/bin/node" ]; then
+  NODE="/usr/local/bin/node"
+elif [ -x "$HOME/.nvm/current/bin/node" ]; then
+  NODE="$HOME/.nvm/current/bin/node"
+elif [ -x "$HOME/.local/bin/node" ]; then
+  NODE="$HOME/.local/bin/node"
+else
+  # NixOS / Homebrew fallback
+  for p in /run/current-system/sw/bin/node /opt/homebrew/bin/node; do
+    if [ -x "$p" ]; then
+      NODE="$p"
+      break
+    fi
+  done
+fi
+
+if [ -z "${NODE:-}" ]; then
+  exit 0
+fi
+
+# Pipe stdin through to the node script
+exec "$NODE" "$ENTRY"

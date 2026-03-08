@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "devglobe",
+  "description": "DevGlobe marketplace - appear active on the globe while coding with AI agents",
+  "owner": {
+    "name": "DevGlobe",
+    "email": "contact@devglobe.dev"
+  },
+  "plugins": [
+    {
+      "name": "devglobe",
+      "description": "DevGlobe heartbeat plugin - sends coding activity to the DevGlobe globe when using Claude Code",
+      "version": "1.0.0",
+      "author": {
+        "name": "DevGlobe"
+      },
+      "source": "./plugins/devglobe",
+      "category": "productivity",
+      "tags": ["devglobe", "heartbeat", "activity", "globe"]
+    }
+  ]
+}
