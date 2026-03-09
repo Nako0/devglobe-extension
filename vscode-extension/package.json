@@ -4,6 +4,7 @@
   "description": "Show your live coding presence on the DevGlobe world map",
   "version": "0.1.2",
   "publisher": "devglobe",
+  "icon": "media/logo.png",
   "license": "MIT",
   "repository": {
     "type": "git",
