@@ -17,7 +17,7 @@
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "scripts": {
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && mkdir -p out/data && cp src/data/*.json out/data/",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
@@ -67,6 +67,11 @@
           "type": "boolean",
           "default": false,
           "description": "Share your GitHub repository on your DevGlobe profile"
+        },
+        "devglobe.anonymousMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Appear on a random city in your country instead of your real location"
         }
       }
     }

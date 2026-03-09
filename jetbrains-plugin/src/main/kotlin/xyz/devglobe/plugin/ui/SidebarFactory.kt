@@ -76,6 +76,12 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
                 tracker.updatePreference("shareRepo", enabled)
             }
 
+            override fun onToggleAnonymousMode(enabled: Boolean) {
+                val settings = DevGlobeSettings.getInstance()
+                settings.state.anonymousMode = enabled
+                tracker.updatePreference("anonymousMode", enabled)
+            }
+
             override fun onOpenExternal(url: String) {
                 BrowserUtil.browse(url)
             }

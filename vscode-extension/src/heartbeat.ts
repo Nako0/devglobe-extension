@@ -5,6 +5,17 @@ import { getActiveLanguage } from './language';
 import { detectRepo } from './git';
 import { log } from './logger';
 
+/** Maps `vscode.env.appName` to a short editor ID sent in heartbeats. */
+function detectEditor(): string {
+    const name = vscode.env.appName.toLowerCase();
+    if (name.includes('cursor'))    return 'cursor';
+    if (name.includes('windsurf'))  return 'windsurf';
+    if (name.includes('vscodium'))  return 'vscodium';
+    if (name.includes('positron'))  return 'positron';
+    if (name.includes('void'))      return 'void';
+    return 'vscode';
+}
+
 /**
  * Thrown when the fetch itself fails (no internet, DNS failure, timeout…).
  * Distinct from API errors so callers can handle offline detection separately.
@@ -41,13 +52,14 @@ const HEADERS = {
  * - Returns coding-time and active language on success.
  */
 export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: number; language: string | null }> {
+    const config = vscode.workspace.getConfiguration('devglobe');
+    const anonymous = config.get<boolean>('anonymousMode', false);
+
     const [geo, activeLang, repo] = await Promise.all([
-        fetchGeolocation(),
+        fetchGeolocation(anonymous),
         Promise.resolve(getActiveLanguage()),
         detectRepo(),
     ]);
-
-    const config = vscode.workspace.getConfiguration('devglobe');
 
     const body: Record<string, unknown> = {
         p_key: apiKey,
@@ -60,7 +72,7 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     }
 
     if (activeLang) body.p_lang = activeLang;
-    body.p_editor = 'vscode';
+    body.p_editor = detectEditor();
 
     if (repo) {
         body.p_repo = repo;

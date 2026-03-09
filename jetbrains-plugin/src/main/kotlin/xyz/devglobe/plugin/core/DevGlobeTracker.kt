@@ -10,6 +10,7 @@ import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import xyz.devglobe.plugin.auth.ApiKeyStorage
 import xyz.devglobe.plugin.settings.DevGlobeSettings
+import xyz.devglobe.plugin.core.GeoService
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -58,11 +59,13 @@ class DevGlobeTracker : Disposable {
         consecutiveNetErrors = 0
 
         val settings = DevGlobeSettings.getInstance()
+        GeoService.resetAnonymousLocation()
         state = state.copy(
             connected = true,
             tracking = true,
             offline = false,
             shareRepo = settings.state.shareRepo,
+            anonymousMode = settings.state.anonymousMode,
             statusMessage = settings.state.statusMessage,
         )
         pushState()
@@ -105,6 +108,7 @@ class DevGlobeTracker : Disposable {
             connected = true,
             tracking = false,
             shareRepo = settings.state.shareRepo,
+            anonymousMode = settings.state.anonymousMode,
             statusMessage = settings.state.statusMessage,
         )
         pushState()
@@ -118,6 +122,10 @@ class DevGlobeTracker : Disposable {
     fun updatePreference(key: String, value: Boolean) {
         state = when (key) {
             "shareRepo" -> state.copy(shareRepo = value)
+            "anonymousMode" -> {
+                GeoService.resetAnonymousLocation()
+                state.copy(anonymousMode = value)
+            }
             else -> state
         }
         pushState()

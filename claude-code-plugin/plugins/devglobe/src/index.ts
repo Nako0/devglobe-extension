@@ -5,7 +5,8 @@ import { request as httpRequest } from 'http';
 import { homedir, tmpdir } from 'os';
 import { join, dirname } from 'path';
 import { langFromPath } from './lang';
-import type { Input, State, GeoResult, Config } from './types';
+import type { Input, State, GeoResult, AnonCache, Config } from './types';
+import anonymousCities from './data/anonymous-cities.json';
 
 // ── Constants ──────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://kzcrtlbspkhlnjillhyz.supabase.co';
@@ -15,6 +16,7 @@ const RATE_LIMIT_MS = 60_000; // 1 minute between heartbeats
 const GEO_CACHE_TTL = 60 * 60 * 1000; // 1 hour
 const FETCH_TIMEOUT = 10_000; // 10s
 const GEO_CACHE_PATH = join(tmpdir(), 'devglobe-geo-cache.json');
+const ANON_CACHE_PATH = join(tmpdir(), 'devglobe-anon-location.json');
 
 // ── Main ───────────────────────────────────────────────────────────────
 async function main(): Promise<void> {
@@ -83,14 +85,19 @@ async function main(): Promise<void> {
   const config = getConfig();
 
   // ── Geolocation ────────────────────────────────────────────────────
-  const geo = await getGeoLocation();
+  let geo = await getGeoLocation();
+
+  // Anonymous mode: replace real location with a random city in the same country
+  if (config.anonymousMode !== false && geo) {
+    geo = getAnonymousLocation(geo, input.session_id);
+  }
 
   // ── Send heartbeat ─────────────────────────────────────────────────
   const body = JSON.stringify({
     p_key: apiKey,
     ...(language && { p_lang: language }),
     ...(repo && { p_repo: repo }),
-    p_share_repo: config.shareRepo ?? false,
+    p_share_repo: config.shareRepo === true,
     p_editor: 'claude-code',
     ...(geo?.city && { p_city: geo.city }),
     ...(geo?.lat != null && { p_lat: geo.lat }),
@@ -187,6 +194,8 @@ async function getGeoLocation(): Promise<GeoResult | null> {
       city: d.cityName && d.countryName ? `${d.cityName}, ${d.countryName}` : null,
       lat: roundCoord(d.latitude),
       lon: roundCoord(d.longitude),
+      countryCode: d.countryCode ?? null,
+      countryName: d.countryName ?? null,
       fetchedAt: Date.now(),
     }),
   );
@@ -199,6 +208,8 @@ async function getGeoLocation(): Promise<GeoResult | null> {
         city: d.city && d.country_name ? `${d.city}, ${d.country_name}` : null,
         lat: roundCoord(d.latitude),
         lon: roundCoord(d.longitude),
+        countryCode: d.country_code ?? null,
+        countryName: d.country_name ?? null,
         fetchedAt: Date.now(),
       }),
     );
@@ -214,6 +225,54 @@ async function getGeoLocation(): Promise<GeoResult | null> {
   }
 
   return geo;
+}
+
+/**
+ * Returns an anonymized location for the current session.
+ * Uses a file-based cache so the same random city persists across
+ * invocations within the same Claude Code session.
+ */
+function getAnonymousLocation(geo: GeoResult, sessionId: string): GeoResult {
+  const code = geo.countryCode?.toUpperCase() ?? '';
+
+  // Reuse cached anonymous location if same session and same country
+  try {
+    const cached: AnonCache = JSON.parse(readFileSync(ANON_CACHE_PATH, 'utf-8'));
+    if (cached.sessionId === sessionId && cached.countryCode === code) {
+      return { ...geo, city: cached.city, lat: cached.lat, lon: cached.lon };
+    }
+  } catch {
+    // no cache or invalid
+  }
+
+  const cities = (anonymousCities as Record<string, (number | string)[][]>)[code];
+  let anonCity: string | null;
+  let anonLat: number | null;
+  let anonLon: number | null;
+
+  if (cities && cities.length > 0) {
+    const pick = cities[Math.floor(Math.random() * cities.length)];
+    anonLat = pick[0] as number;
+    anonLon = pick[1] as number;
+    const cityName = pick[2] as string;
+    anonCity = geo.countryName ? `${cityName}, ${geo.countryName}` : cityName;
+  } else {
+    // Fallback: random offset ±1-2° (still in the same rough area)
+    const offset = () => (Math.random() - 0.5) * 4;
+    anonLat = geo.lat != null ? Math.round((geo.lat + offset()) * 10) / 10 : null;
+    anonLon = geo.lon != null ? Math.round((geo.lon + offset()) * 10) / 10 : null;
+    anonCity = geo.countryName ?? null;
+  }
+
+  // Persist for this session
+  try {
+    const cache: AnonCache = { sessionId, countryCode: code, city: anonCity, lat: anonLat, lon: anonLon };
+    writeFileSync(ANON_CACHE_PATH, JSON.stringify(cache));
+  } catch {
+    // ignore
+  }
+
+  return { ...geo, city: anonCity, lat: anonLat, lon: anonLon };
 }
 
 function roundCoord(v: unknown): number | null {

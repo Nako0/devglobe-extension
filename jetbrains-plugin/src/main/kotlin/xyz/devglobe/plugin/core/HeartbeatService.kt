@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import xyz.devglobe.plugin.settings.DevGlobeSettings
+import com.intellij.util.PlatformUtils
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -32,14 +33,14 @@ object HeartbeatService {
      * @throws ApiError if the server returns a non-2xx response.
      */
     fun sendHeartbeat(apiKey: String, project: Project?): HeartbeatResult {
-        val geo = GeoService.fetch()
+        val settings = DevGlobeSettings.getInstance()
+        val geo = GeoService.fetch(anonymous = settings.state.anonymousMode)
         val language = LanguageService.getActiveLanguage()
         val repo = project?.let { GitService.detectRepo(it) }
-        val settings = DevGlobeSettings.getInstance()
 
         val json = JsonObject().apply {
             addProperty("p_key", apiKey)
-            addProperty("p_editor", "jetbrains")
+            addProperty("p_editor", detectEditor())
 
             if (geo != null) {
                 geo.city?.let { addProperty("p_city", it) }
@@ -108,6 +109,24 @@ object HeartbeatService {
             res.statusCode() in 200..299
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun detectEditor(): String {
+        val prefix = PlatformUtils.getPlatformPrefix()
+        return when {
+            prefix.equals("idea", ignoreCase = true) || prefix == "IdeaEdu" -> "intellij"
+            prefix == "WebStorm" -> "webstorm"
+            prefix == "Python" || prefix == "PyCharmCore" || prefix == "PyCharmEdu" -> "pycharm"
+            prefix == "GoLand" -> "goland"
+            prefix == "PhpStorm" -> "phpstorm"
+            prefix == "Ruby" -> "rubymine"
+            prefix == "CLion" -> "clion"
+            prefix == "Rider" -> "rider"
+            prefix == "DataGrip" -> "datagrip"
+            prefix == "AndroidStudio" -> "android-studio"
+            prefix == "RustRover" -> "rustrover"
+            else -> "jetbrains"
         }
     }
 }

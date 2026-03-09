@@ -3,9 +3,10 @@ import { initLogger, log } from './logger';
 import { Tracker } from './tracker';
 import { DevGlobeSidebarProvider } from './sidebar';
 import { updateStatusMessage } from './heartbeat';
+import { resetAnonymousLocation } from './geo';
 
 // Keys the sidebar is allowed to toggle — prevents arbitrary config modification
-const ALLOWED_TOGGLE_KEYS = new Set(['shareRepo']);
+const ALLOWED_TOGGLE_KEYS = new Set(['shareRepo', 'anonymousMode']);
 
 // SecretStorage key for the API key (stored in the OS keychain)
 const SECRET_API_KEY = 'devglobe.apiKey';
@@ -86,6 +87,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 const value = Boolean(msg.value);
                 await config.update(key, value, vscode.ConfigurationTarget.Global);
                 tracker.updatePreference(key as keyof ReturnType<typeof tracker.getState>, value);
+                if (key === 'anonymousMode') resetAnonymousLocation();
                 break;
             }
 

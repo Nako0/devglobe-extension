@@ -18,6 +18,7 @@ interface SidebarListener {
     fun onStopTracking()
     fun onSetStatus(message: String)
     fun onToggleShareRepo(enabled: Boolean)
+    fun onToggleAnonymousMode(enabled: Boolean)
     fun onOpenExternal(url: String)
 }
 
@@ -36,6 +37,7 @@ class SidebarPanel : JPanel() {
     private val codingTimeLabel = JBLabel("0m")
     private val languageLabel = JBLabel("--")
     private val shareRepoCheckbox = JBCheckBox("Share repository")
+    private val anonymousModeCheckbox = JBCheckBox("Anonymous mode")
     private val statusField = JBTextField()
     private val statusButton = JButton("Set")
     private val stopButton = JButton("Stop Tracking")
@@ -59,6 +61,7 @@ class SidebarPanel : JPanel() {
             codingTimeLabel.text = state.codingTime.ifEmpty { "0m" }
             languageLabel.text = state.language ?: "--"
             shareRepoCheckbox.isSelected = state.shareRepo
+            anonymousModeCheckbox.isSelected = state.anonymousMode
             statusField.text = state.statusMessage
             stopButton.isEnabled = state.tracking
             startButton.isEnabled = !state.tracking
@@ -134,6 +137,16 @@ class SidebarPanel : JPanel() {
         hint.foreground = UIManager.getColor("Label.disabledForeground")
         panel.add(hint, gbc)
 
+        gbc.gridy = row++; gbc.insets = JBUI.insets(8, 0, 0, 0)
+        anonymousModeCheckbox.isOpaque = false
+        panel.add(anonymousModeCheckbox, gbc)
+
+        gbc.gridy = row++; gbc.insets = JBUI.insets(2, 0, 0, 0)
+        val anonHint = JBLabel("<html>Appear on a random city in your country instead of your real location. Your real position is never sent to the server. The random city stays the same for the entire session.</html>")
+        anonHint.font = anonHint.font.deriveFont(Font.PLAIN, 11f)
+        anonHint.foreground = UIManager.getColor("Label.disabledForeground")
+        panel.add(anonHint, gbc)
+
         // --- Separator ---
         gbc.gridy = row++; gbc.insets = JBUI.insets(10, 0, 10, 0)
         panel.add(JSeparator(), gbc)
@@ -186,6 +199,9 @@ class SidebarPanel : JPanel() {
         })
         shareRepoCheckbox.addActionListener {
             listener?.onToggleShareRepo(shareRepoCheckbox.isSelected)
+        }
+        anonymousModeCheckbox.addActionListener {
+            listener?.onToggleAnonymousMode(anonymousModeCheckbox.isSelected)
         }
         statusButton.addActionListener {
             listener?.onSetStatus(statusField.text)

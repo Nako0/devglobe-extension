@@ -1,13 +1,17 @@
 import { GEO_CACHE_TTL, GEO_TIMEOUT_MS } from './constants';
 import { log } from './logger';
+import anonymousCities from './data/anonymous-cities.json';
 
 interface GeoResult {
     city: string | null;
     lat: number | null;
     lon: number | null;
+    countryCode: string | null;
+    countryName: string | null;
 }
 
 let cached: GeoResult | null = null;
+let cachedAnonymous: GeoResult | null = null;
 let lastFetch = 0;
 
 /** Rounds to 1 decimal (~11 km precision) to protect privacy. */
@@ -40,7 +44,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
  */
 async function fromFreeIpApi(): Promise<GeoResult | null> {
     const data = await fetchJson('https://freeipapi.com/api/json') as {
-        cityName?: string; countryName?: string;
+        cityName?: string; countryName?: string; countryCode?: string;
         latitude?: unknown; longitude?: unknown;
     } | null;
     if (!data) return null;
@@ -53,7 +57,13 @@ async function fromFreeIpApi(): Promise<GeoResult | null> {
         ? `${data.cityName}, ${data.countryName}`
         : (data.cityName ?? data.countryName ?? null);
 
-    return { city, lat: round1(lat), lon: round1(lon) };
+    return {
+        city,
+        lat: round1(lat),
+        lon: round1(lon),
+        countryCode: data.countryCode ?? null,
+        countryName: data.countryName ?? null,
+    };
 }
 
 /**
@@ -61,7 +71,7 @@ async function fromFreeIpApi(): Promise<GeoResult | null> {
  */
 async function fromIpApiCo(): Promise<GeoResult | null> {
     const data = await fetchJson('https://ipapi.co/json/') as {
-        city?: string; country_name?: string;
+        city?: string; country_name?: string; country_code?: string;
         latitude?: unknown; longitude?: unknown;
     } | null;
     if (!data) return null;
@@ -74,7 +84,59 @@ async function fromIpApiCo(): Promise<GeoResult | null> {
         ? `${data.city}, ${data.country_name}`
         : (data.city ?? data.country_name ?? null);
 
-    return { city, lat: round1(lat), lon: round1(lon) };
+    return {
+        city,
+        lat: round1(lat),
+        lon: round1(lon),
+        countryCode: data.country_code ?? null,
+        countryName: data.country_name ?? null,
+    };
+}
+
+/**
+ * Returns an anonymized location for the current session.
+ * The random city is picked once and reused until `resetAnonymousLocation()` is called.
+ */
+function getAnonymousLocation(geo: GeoResult): GeoResult {
+    // Reuse cached anonymous location if same country
+    if (cachedAnonymous && cachedAnonymous.countryCode === geo.countryCode) {
+        return cachedAnonymous;
+    }
+
+    const code = geo.countryCode?.toUpperCase() ?? '';
+    const cities = (anonymousCities as Record<string, (number | string)[][]>)[code];
+
+    if (cities && cities.length > 0) {
+        const pick = cities[Math.floor(Math.random() * cities.length)];
+        const cityName = pick[2] as string;
+        cachedAnonymous = {
+            city: geo.countryName ? `${cityName}, ${geo.countryName}` : cityName,
+            lat: pick[0] as number,
+            lon: pick[1] as number,
+            countryCode: geo.countryCode,
+            countryName: geo.countryName,
+        };
+    } else {
+        // Fallback: random offset ±1-2° (still in the same rough area)
+        const offset = () => (Math.random() - 0.5) * 4;
+        cachedAnonymous = {
+            city: geo.countryName ?? null,
+            lat: geo.lat != null ? round1(geo.lat + offset()) : null,
+            lon: geo.lon != null ? round1(geo.lon + offset()) : null,
+            countryCode: geo.countryCode,
+            countryName: geo.countryName,
+        };
+    }
+
+    return cachedAnonymous;
+}
+
+/**
+ * Clears the cached anonymous location so the next heartbeat picks a new random city.
+ * Call this when a new tracking session starts.
+ */
+export function resetAnonymousLocation(): void {
+    cachedAnonymous = null;
 }
 
 /**
@@ -83,18 +145,19 @@ async function fromIpApiCo(): Promise<GeoResult | null> {
  * - Tries freeipapi.com first, falls back to ipapi.co
  * - Results are cached for one hour
  * - Coordinates are rounded to ~11 km precision for privacy
+ * - When `anonymous` is true, returns a random city in the same country
  * - Returns stale cache if both providers fail
  */
-export async function fetchGeolocation(): Promise<GeoResult | null> {
+export async function fetchGeolocation(anonymous = false): Promise<GeoResult | null> {
     if (cached && Date.now() - lastFetch < GEO_CACHE_TTL) {
-        return cached;
+        return anonymous ? getAnonymousLocation(cached) : cached;
     }
 
     try {
         const next = await fromFreeIpApi() ?? await fromIpApiCo();
         if (!next) {
             log.warn('Geolocation: both providers failed');
-            return cached;
+            return cached ? (anonymous ? getAnonymousLocation(cached) : cached) : null;
         }
 
         if (cached && cached.city !== next.city && next.city) {
@@ -103,9 +166,9 @@ export async function fetchGeolocation(): Promise<GeoResult | null> {
 
         cached = next;
         lastFetch = Date.now();
-        return cached;
+        return anonymous ? getAnonymousLocation(cached) : cached;
     } catch (e) {
         log.warn('Geolocation failed:', (e as Error).message);
-        return cached;
+        return cached ? (anonymous ? getAnonymousLocation(cached) : cached) : null;
     }
 }

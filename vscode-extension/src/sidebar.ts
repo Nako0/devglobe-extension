@@ -284,6 +284,16 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
                 Your coding time and commits are always tracked. This toggle controls
                 whether your repository name is visible on the globe.
             </div>
+            <div class="toggle-row" style="margin-top: 8px;">
+                <span>Anonymous mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-anonymous" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-top: 2px; line-height: 1.4;">
+                Your real location is never sent to the server. Each heartbeat places you randomly among the 50 largest cities in your country. If you live in a major city, you may occasionally appear there by chance — this is normal and expected.
+            </div>
         </div>
 
         <hr class="separator" />
@@ -321,6 +331,7 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
     const codingTime       = document.getElementById('coding-time');
     const activeLang       = document.getElementById('active-lang');
     const toggleShareRepo  = document.getElementById('toggle-share-repo');
+    const toggleAnonymous  = document.getElementById('toggle-anonymous');
     const statusInput      = document.getElementById('status-input');
     const statusBtn        = document.getElementById('status-btn');
     const btnStop          = document.getElementById('btn-stop');
@@ -353,6 +364,10 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
 
     toggleShareRepo.addEventListener('change', () => {
         vscode.postMessage({ type: 'toggle', key: 'shareRepo', value: toggleShareRepo.checked });
+    });
+
+    toggleAnonymous.addEventListener('change', () => {
+        vscode.postMessage({ type: 'toggle', key: 'anonymousMode', value: toggleAnonymous.checked });
     });
 
     statusBtn.addEventListener('click', () => {
@@ -393,6 +408,7 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
                 codingTime.textContent  = msg.codingTime || '0m';
                 activeLang.textContent  = msg.language   || '--';
                 toggleShareRepo.checked = msg.shareRepo  === true;
+                toggleAnonymous.checked = msg.anonymousMode === true;
                 statusInput.value = msg.statusMessage || '';
                 btnStop.disabled  = !msg.tracking;
                 btnStart.disabled = !!msg.tracking;

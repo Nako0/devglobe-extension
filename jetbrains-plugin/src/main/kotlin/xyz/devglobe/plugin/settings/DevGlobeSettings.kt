@@ -11,6 +11,7 @@ class DevGlobeSettings : PersistentStateComponent<DevGlobeSettings.State> {
     data class State(
         var trackingEnabled: Boolean = true,
         var shareRepo: Boolean = false,
+        var anonymousMode: Boolean = false,
         var statusMessage: String = "",
     )
 

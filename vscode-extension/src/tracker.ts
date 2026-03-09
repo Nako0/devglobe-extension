@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { sendHeartbeat, NetworkError, ApiError } from './heartbeat';
 import { HEARTBEAT_INTERVAL, ACTIVITY_TIMEOUT, OFFLINE_THRESHOLD } from './constants';
+import { resetAnonymousLocation } from './geo';
 import { log } from './logger';
 
 export interface TrackerState {
@@ -9,6 +10,7 @@ export interface TrackerState {
     codingTime: string;
     language: string | null;
     shareRepo: boolean;
+    anonymousMode: boolean;
     statusMessage: string;
     offline: boolean;
 }
@@ -19,6 +21,7 @@ export const DEFAULT_STATE: TrackerState = {
     codingTime: '0m',
     language: null,
     shareRepo: false,
+    anonymousMode: false,
     statusMessage: '',
     offline: false,
 };
@@ -91,6 +94,7 @@ export class Tracker implements vscode.Disposable {
         this.state.connected = true;
         this.state.tracking = false;
         this.state.shareRepo = config.get('shareRepo', false);
+        this.state.anonymousMode = config.get('anonymousMode', false);
         this.state.statusMessage = config.get('statusMessage', '');
     }
 
@@ -111,6 +115,7 @@ export class Tracker implements vscode.Disposable {
         this.clearTimer();
         this.currentApiKey = apiKey;
         this.ensureStatusBar();
+        resetAnonymousLocation();
 
         const config = vscode.workspace.getConfiguration('devglobe');
         this.setStatusBarText('$(clock) 0m');
@@ -123,6 +128,7 @@ export class Tracker implements vscode.Disposable {
             tracking: true,
             offline: false,
             shareRepo: config.get('shareRepo', false),
+            anonymousMode: config.get('anonymousMode', false),
             statusMessage: config.get('statusMessage', ''),
         };
         this.pushState();

@@ -1,6 +1,8 @@
 package xyz.devglobe.plugin.core
 
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
+import com.google.gson.Gson
 import com.intellij.openapi.diagnostic.Logger
 import java.net.URI
 import java.net.http.HttpClient
@@ -13,6 +15,8 @@ data class GeoResult(
     val city: String?,
     val lat: Double,
     val lon: Double,
+    val countryCode: String? = null,
+    val countryName: String? = null,
 )
 
 object GeoService {
@@ -25,15 +29,19 @@ object GeoService {
     private var cached: GeoResult? = null
     private var lastFetch = 0L
 
-    fun fetch(): GeoResult? {
+    // Anonymous mode: cached per-session
+    private var cachedAnonymous: GeoResult? = null
+    private var anonymousCities: Map<String, List<List<Any>>>? = null
+
+    fun fetch(anonymous: Boolean = false): GeoResult? {
         if (cached != null && System.currentTimeMillis() - lastFetch < Constants.GEO_CACHE_TTL_MS) {
-            return cached
+            return if (anonymous) getAnonymousLocation(cached!!) else cached
         }
 
         val result = fromFreeIpApi() ?: fromIpApiCo()
         if (result == null) {
             LOG.warn("Geolocation: both providers failed")
-            return cached
+            return if (anonymous && cached != null) getAnonymousLocation(cached!!) else cached
         }
 
         if (cached != null && cached!!.city != result.city && result.city != null) {
@@ -42,8 +50,69 @@ object GeoService {
 
         cached = result
         lastFetch = System.currentTimeMillis()
-        return cached
+        return if (anonymous) getAnonymousLocation(cached!!) else cached
     }
+
+    /** Clears the cached anonymous location so the next heartbeat picks a new random city. */
+    fun resetAnonymousLocation() {
+        cachedAnonymous = null
+    }
+
+    // -------------------------------------------------------------------------
+    // Anonymous mode
+    // -------------------------------------------------------------------------
+
+    private fun getAnonymousLocation(geo: GeoResult): GeoResult {
+        val code = geo.countryCode?.uppercase() ?: ""
+
+        // Reuse cached anonymous location if same country
+        if (cachedAnonymous != null && cachedAnonymous!!.countryCode == code) {
+            return cachedAnonymous!!
+        }
+
+        val cities = loadAnonymousCities()[code]
+
+        if (cities != null && cities.isNotEmpty()) {
+            val pick = cities.random()
+            val lat = (pick[0] as Number).toDouble()
+            val lon = (pick[1] as Number).toDouble()
+            val cityName = pick[2] as String
+            val displayCity = if (geo.countryName != null) "$cityName, ${geo.countryName}" else cityName
+
+            cachedAnonymous = GeoResult(displayCity, lat, lon, code, geo.countryName)
+        } else {
+            // Fallback: random offset ±1-2°
+            val offsetLat = (Math.random() - 0.5) * 4
+            val offsetLon = (Math.random() - 0.5) * 4
+            cachedAnonymous = GeoResult(
+                city = geo.countryName,
+                lat = round1(geo.lat + offsetLat),
+                lon = round1(geo.lon + offsetLon),
+                countryCode = code,
+                countryName = geo.countryName,
+            )
+        }
+
+        return cachedAnonymous!!
+    }
+
+    private fun loadAnonymousCities(): Map<String, List<List<Any>>> {
+        if (anonymousCities != null) return anonymousCities!!
+        return try {
+            val stream = GeoService::class.java.getResourceAsStream("/data/anonymous-cities.json")
+            val json = stream?.bufferedReader()?.readText() ?: "{}"
+            val type = object : TypeToken<Map<String, List<List<Any>>>>() {}.type
+            anonymousCities = Gson().fromJson(json, type)
+            anonymousCities!!
+        } catch (e: Exception) {
+            LOG.warn("Failed to load anonymous cities: ${e.message}")
+            emptyMap()
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Geo providers
+    // -------------------------------------------------------------------------
 
     private fun round1(n: Double): Double = (n * 10).roundToInt() / 10.0
 
@@ -74,11 +143,12 @@ object GeoService {
 
             val cityName = obj.get("cityName")?.takeIf { it.isJsonPrimitive }?.asString
             val countryName = obj.get("countryName")?.takeIf { it.isJsonPrimitive }?.asString
+            val countryCode = obj.get("countryCode")?.takeIf { it.isJsonPrimitive }?.asString
             val city = when {
                 cityName != null && countryName != null -> "$cityName, $countryName"
                 else -> cityName ?: countryName
             }
-            GeoResult(city, round1(lat), round1(lon))
+            GeoResult(city, round1(lat), round1(lon), countryCode, countryName)
         } catch (e: Exception) {
             null
         }
@@ -94,11 +164,12 @@ object GeoService {
 
             val cityName = obj.get("city")?.takeIf { it.isJsonPrimitive }?.asString
             val countryName = obj.get("country_name")?.takeIf { it.isJsonPrimitive }?.asString
+            val countryCode = obj.get("country_code")?.takeIf { it.isJsonPrimitive }?.asString
             val city = when {
                 cityName != null && countryName != null -> "$cityName, $countryName"
                 else -> cityName ?: countryName
             }
-            GeoResult(city, round1(lat), round1(lon))
+            GeoResult(city, round1(lat), round1(lon), countryCode, countryName)
         } catch (e: Exception) {
             null
         }

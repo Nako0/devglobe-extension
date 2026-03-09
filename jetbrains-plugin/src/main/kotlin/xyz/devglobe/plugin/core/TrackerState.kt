@@ -6,6 +6,7 @@ data class TrackerState(
     val codingTime: String = "0m",
     val language: String? = null,
     val shareRepo: Boolean = false,
+    val anonymousMode: Boolean = false,
     val statusMessage: String = "",
     val offline: Boolean = false,
 )
