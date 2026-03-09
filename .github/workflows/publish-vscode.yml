@@ -23,8 +23,10 @@ jobs:
 
       - run: npm run compile
 
-      - run: npx @vscode/vsce publish --no-update-package-json
+      - run: npx @vscode/vsce package --no-update-package-json
+
+      - run: npx @vscode/vsce publish --no-update-package-json --packagePath *.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
-      - run: npx ovsx publish --no-update-package-json -p ${{ secrets.OVSX_PAT }}
+      - run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
