@@ -1,9 +1,9 @@
-name: Publish VS Code Marketplace
+name: Publish Open VSX
 
 on:
   push:
     tags:
-      - "vscode-v*"
+      - "ovsx-v*"
 
 jobs:
   publish:
@@ -23,6 +23,6 @@ jobs:
 
       - run: npm run compile
 
-      - run: npx @vscode/vsce publish --no-update-package-json
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - run: npx @vscode/vsce package --no-update-package-json
+
+      - run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
