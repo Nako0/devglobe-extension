@@ -1,77 +1,43 @@
 # DevGlobe — Claude Code Plugin
 
-[Claude Code](https://claude.ai/claude-code) plugin for [DevGlobe](https://devglobe.xyz). Appear active on the globe while coding with an AI agent.
+Track your Claude Code activity on the [DevGlobe](https://devglobe.xyz) world map.
 
-## How it works
+## Prerequisites
 
-The plugin uses Claude Code's native **hooks** system to send a heartbeat to DevGlobe on every significant action:
+- [Claude Code](https://claude.com/claude-code) installed
+- [Node.js](https://nodejs.org) (v18+)
+- A DevGlobe account (sign in with GitHub at [devglobe.xyz](https://devglobe.xyz))
 
-- **PostToolUse** — after each tool use (Edit, Write, Bash...)
-- **UserPromptSubmit** — when you send a prompt
-- **Stop** — at the end of a session (final heartbeat)
+## Install
 
-Heartbeats are sent **async** (non-blocking) and **rate-limited to 1 per minute** client-side. The server also enforces rate-limiting to prevent abuse on coding time stats.
-
-### Data sent
-
-| Data | Source | Description |
-|------|--------|-------------|
-| Language | Edited file extension (`tool_input.file_path`) | TypeScript, Python, Rust... (~100 languages supported) |
-| Repository | `git remote get-url origin` | `owner/repo` format |
-| Editor | Hardcoded | `claude-code` |
-| Geolocation | IP (rounded to ~11km) | City, latitude, longitude |
-
-Geolocation is **cached locally for 1 hour** to limit network calls.
-
-## Installation
-
-### 1. Get your API key
-
-Log in to [devglobe.xyz](https://devglobe.xyz), go to your settings, and copy your API key (format `devglobe_xxxxxxxxxxxx`).
-
-### 2. Configure the key
-
-**Option A** — File (recommended):
+Add the marketplace and install the plugin:
 
 ```bash
-mkdir -p ~/.devglobe
-echo "YOUR_API_KEY" > ~/.devglobe/api_key
+/plugin marketplace add Nako0/devglobe-extension
+/plugin install devglobe@devglobe
 ```
 
-**Option B** — Environment variable:
+## Setup
 
-```bash
-export DEVGLOBE_API_KEY="YOUR_API_KEY"
-```
+1. Go to [devglobe.xyz](https://devglobe.xyz), sign in, then open your **profile settings** to copy your API key
+2. Save your API key using one of these methods:
 
-### 3. Install the plugin
+   **Option A** — Environment variable (add to your `~/.zshrc` or `~/.bashrc`):
+   ```bash
+   export DEVGLOBE_API_KEY="your-api-key-here"
+   ```
 
-The plugin is not yet on the official Claude Code marketplace. Local installation:
+   **Option B** — Config file:
+   ```bash
+   mkdir -p ~/.devglobe
+   echo "your-api-key-here" > ~/.devglobe/api_key
+   ```
 
-```bash
-# Clone the DevGlobe repo, then:
-claude plugin marketplace add /path/to/extensions/claude-code-plugin
-claude plugin install devglobe
-```
+3. Restart Claude Code — you're done! Your activity will appear on the globe.
 
-That's it. The plugin is automatically active in all your Claude Code sessions.
+### Optional: share your repository
 
-## Uninstall
-
-```bash
-claude plugin uninstall devglobe
-```
-
-To also remove the local configuration:
-
-```bash
-rm -f ~/.devglobe/api_key
-rm -f ~/.devglobe/config.json
-```
-
-## Configuration (optional)
-
-Create `~/.devglobe/config.json` to customize behavior:
+To display your current repo on your DevGlobe profile, create `~/.devglobe/config.json`:
 
 ```json
 {
@@ -79,46 +45,12 @@ Create `~/.devglobe/config.json` to customize behavior:
 }
 ```
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `shareRepo` | `boolean` | `false` | Display the repo name on the globe |
+## How it works
 
-## Development
+The plugin hooks into Claude Code events (`PostToolUse`, `UserPromptSubmit`, `Stop`) and sends a heartbeat to DevGlobe at most once per minute. It automatically detects:
 
-```bash
-cd extensions/claude-code-plugin/plugins/devglobe
-npm install
-npm run build    # Single build
-npm run watch    # Auto-rebuild on changes
-```
+- The programming language from the files you interact with
+- Your git repository
+- Your approximate location (via IP geolocation, cached for 1 hour)
 
-The build uses **esbuild** and produces `dist/index.js` (Node.js bundle, zero runtime dependencies).
-
-### Structure
-
-```
-claude-code-plugin/
-├── .claude-plugin/
-│   └── marketplace.json       # Marketplace manifest
-└── plugins/devglobe/
-    ├── .claude-plugin/
-    │   └── plugin.json         # Plugin metadata
-    ├── hooks/
-    │   └── hooks.json          # Hook declarations
-    ├── scripts/
-    │   └── run                 # Shell launcher (detects Node.js)
-    ├── src/
-    │   ├── index.ts            # Main logic
-    │   ├── lang.ts             # Extension → language map
-    │   └── types.ts            # TypeScript types
-    ├── dist/
-    │   └── index.js            # Compiled bundle
-    ├── package.json
-    └── tsconfig.json
-```
-
-## Verification
-
-To verify the plugin is working, launch Claude Code in a project and make a file edit. You should appear active on the globe with the Claude Code icon on your profile.
-
-You can also check the logs in Claude Code's debug mode to see the heartbeats being sent.
+Your coding session then appears live on the [DevGlobe map](https://devglobe.xyz) with the editor shown as `claude-code`.

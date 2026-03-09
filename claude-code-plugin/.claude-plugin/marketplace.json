@@ -3,8 +3,7 @@
   "name": "devglobe",
   "description": "DevGlobe marketplace - appear active on the globe while coding with AI agents",
   "owner": {
-    "name": "DevGlobe",
-    "email": "contact@devglobe.dev"
+    "name": "DevGlobe"
   },
   "plugins": [
     {
