@@ -3,7 +3,6 @@ import { initLogger, log } from './logger';
 import { Tracker } from './tracker';
 import { DevGlobeSidebarProvider } from './sidebar';
 import { updateStatusMessage } from './heartbeat';
-import { disposeGitWatcher } from './git';
 
 // Keys the sidebar is allowed to toggle — prevents arbitrary config modification
 const ALLOWED_TOGGLE_KEYS = new Set(['shareRepo']);
@@ -203,5 +202,5 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 }
 
 export function deactivate(): void {
-    disposeGitWatcher();
+    // no cleanup needed
 }

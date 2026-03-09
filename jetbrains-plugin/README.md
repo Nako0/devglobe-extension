@@ -45,7 +45,7 @@ You can also download the `.zip` from the [Releases](https://github.com/Nako0/de
 |---------|-------------|
 | **Live heartbeat** | Sends your activity every 30s. Auto-pauses after 1 min of inactivity. |
 | **Language detection** | Uses JetBrains' native FileType system — supports all languages in your IDE without configuration. |
-| **Git integration** | Detects your repo from the git remote. Counts insertions/deletions over 24h on each new commit. |
+| **Git integration** | Detects your repo from the git remote. Commit stats (insertions/deletions) are verified server-side via the GitHub API. |
 | **Status message** | Write what you're working on — visible on your globe profile. Persists in IDE settings. |
 | **Repo sharing** | **You decide.** Your repo name is never shown unless you explicitly enable this toggle (disabled by default). |
 | **Offline recovery** | Detects connection loss and automatically resumes when the network is back. |
@@ -70,6 +70,44 @@ Two views in the DevGlobe tool window:
 
 ---
 
+## GitHub App — Verified commit stats
+
+DevGlobe uses a [GitHub App](https://github.com/apps/devglobeapp) to display **verified** commit statistics (insertions & deletions per week) on featured projects. This replaces the old client-side stats collection, which could be falsified.
+
+### How it works
+
+1. On your DevGlobe profile, click **"Connect repo"** in the Projects section
+2. You're redirected to GitHub to install the [DevGlobe App](https://github.com/apps/devglobeapp) on the repos you choose
+3. DevGlobe syncs commit stats from the GitHub API every 15 minutes using your token
+4. Stats are displayed on your featured projects in the carousel and on your profile
+
+### What the GitHub App can read
+
+The app requests **Metadata: Read-only** — the most minimal GitHub permission available.
+
+| Data | Access |
+|------|--------|
+| Repo name, description, stars, forks | **Read** |
+| Commit statistics (insertions/deletions) | **Read** |
+| Your source code | **No access** |
+| Your issues and pull requests | **No access** |
+| Your repo settings | **No access** |
+| Your actions/workflows | **No access** |
+| Your collaborators list | **No access** |
+
+### What happens if you don't install it
+
+- You can still use DevGlobe normally (heartbeats, coding time, leaderboard)
+- You can still add projects to your profile
+- You just **can't feature a project** in the carousel without connecting its repo
+- No commit stats will be displayed on your profile
+
+### How to uninstall
+
+Go to [github.com/settings/installations](https://github.com/settings/installations), find "DevGlobe", and click **Uninstall**. Your coding time and profile data on DevGlobe remain intact.
+
+---
+
 ## The globe at a glance
 
 On [devglobe.xyz](https://devglobe.xyz), you'll find:
@@ -77,7 +115,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 - **A 3D globe** with active developers in real time (colored markers or GitHub avatars)
 - **Clickable profiles** — active language, session time, bio, tech stack, social links (GitHub, X, Reddit), and repo if the developer chose to share it
 - **A weekly leaderboard** — top developers by coding time, updated live
-- **A featured projects carousel** — the most active projects over the last 24h
+- **A featured projects carousel** — the most active projects, ranked by coding time and verified commit stats
 - **An activity feed** — who just connected, who left
 - **A search** — find a developer by name or GitHub username
 - **Detailed stats** — today's time, streak, language breakdown over 30 days
@@ -95,8 +133,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 | Programming language | Yes | The language name of your active tab (e.g. "Kotlin"). Nothing else. |
 | Approximate location | Yes | City + coordinates **rounded to ~11 km**. You appear as an area on the globe, not an address. |
 | Repo name | **You decide** | `owner/repo` format only. **Sharing is disabled by default.** Nobody sees your repo unless you enable the toggle. |
-| Commit stats | Yes | Number of insertions and deletions over 24h. Sent only once per new detected commit. |
-| Coding time | Yes | Accumulated per day, per language. |
+| Coding time | Yes | Accumulated per day, per language. Server-side rate-limited to prevent abuse. |
 | Status message | Yes | Only what you write yourself. |
 
 ### What the plugin does NOT send
@@ -113,6 +150,14 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 | Your IP address | **Never stored** — used only for geolocation, then discarded |
 | Your environment variables | **Never** |
 | Your SSH keys or credentials | **Never** |
+
+### Commit stats verification
+
+Commit statistics (insertions/deletions) are **never sent by the plugin**. They are fetched **server-side** directly from the GitHub API using the token granted when you install the GitHub App. This prevents any falsification — the stats displayed on DevGlobe always match the real data on GitHub.
+
+### Rate limiting
+
+The server enforces rate-limiting on heartbeats to prevent abuse on coding time stats.
 
 ### Location
 

@@ -26,8 +26,6 @@ object HeartbeatService {
         .connectTimeout(Duration.ofSeconds(Constants.FETCH_TIMEOUT_SECONDS))
         .build()
 
-    private var pendingCommitStats: Pair<Int, Int>? = null
-
     /**
      * Sends a heartbeat to the DevGlobe backend.
      * @throws NetworkError if the request could not be made.
@@ -37,7 +35,6 @@ object HeartbeatService {
         val geo = GeoService.fetch()
         val language = LanguageService.getActiveLanguage()
         val repo = project?.let { GitService.detectRepo(it) }
-        val commitStats = project?.let { GitService.getCommitStats(it) }
         val settings = DevGlobeSettings.getInstance()
 
         val json = JsonObject().apply {
@@ -55,12 +52,6 @@ object HeartbeatService {
             if (repo != null) {
                 addProperty("p_repo", repo)
                 addProperty("p_share_repo", settings.state.shareRepo)
-            }
-
-            if (commitStats != null) pendingCommitStats = commitStats
-            if (pendingCommitStats != null && repo != null) {
-                addProperty("p_insertions", pendingCommitStats!!.first)
-                addProperty("p_deletions", pendingCommitStats!!.second)
             }
         }
 
@@ -84,9 +75,6 @@ object HeartbeatService {
         if (response.statusCode() !in 200..299) {
             throw ApiError(response.statusCode(), response.body() ?: "")
         }
-
-        // Clear pending commit stats after successful send
-        if (pendingCommitStats != null && repo != null) pendingCommitStats = null
 
         val data = try {
             JsonParser.parseString(response.body()).asJsonObject

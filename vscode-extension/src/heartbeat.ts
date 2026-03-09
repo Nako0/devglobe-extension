@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { SUPABASE_URL, SUPABASE_ANON_KEY, FETCH_TIMEOUT_MS } from './constants';
 import { fetchGeolocation } from './geo';
 import { getActiveLanguage } from './language';
-import { detectRepo, getCommitStats } from './git';
+import { detectRepo } from './git';
 import { log } from './logger';
 
 /**
@@ -33,9 +33,6 @@ const HEADERS = {
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
 };
 
-/** Commit stats waiting to be flushed with the next successful heartbeat. */
-let pendingCommitStats: { insertions: number; deletions: number } | null = null;
-
 /**
  * Sends a heartbeat to the DevGlobe backend.
  *
@@ -44,11 +41,10 @@ let pendingCommitStats: { insertions: number; deletions: number } | null = null;
  * - Returns coding-time and active language on success.
  */
 export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: number; language: string | null }> {
-    const [geo, activeLang, repo, commitStats] = await Promise.all([
+    const [geo, activeLang, repo] = await Promise.all([
         fetchGeolocation(),
         Promise.resolve(getActiveLanguage()),
         detectRepo(),
-        getCommitStats(),
     ]);
 
     const config = vscode.workspace.getConfiguration('devglobe');
@@ -69,13 +65,6 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     if (repo) {
         body.p_repo = repo;
         body.p_share_repo = config.get('shareRepo', false);
-    }
-
-    // Accumulate commit stats; flush them once per new commit.
-    if (commitStats) pendingCommitStats = commitStats;
-    if (pendingCommitStats && repo) {
-        body.p_insertions = pendingCommitStats.insertions;
-        body.p_deletions  = pendingCommitStats.deletions;
     }
 
     // Log without the API key for security
@@ -101,9 +90,6 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
         const text = await res.text();
         throw new ApiError(res.status, text);
     }
-
-    // Clear pending commit stats after a confirmed successful send
-    if (pendingCommitStats && repo) pendingCommitStats = null;
 
     const data = await res.json() as { today_seconds?: number };
     return { todaySeconds: data.today_seconds ?? 0, language: activeLang };

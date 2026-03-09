@@ -216,7 +216,6 @@ class DevGlobeTracker : Disposable {
 
     override fun dispose() {
         clearTimer()
-        GitService.disposeWatcher()
     }
 
     companion object {

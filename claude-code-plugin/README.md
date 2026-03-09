@@ -10,7 +10,7 @@ The plugin uses Claude Code's native **hooks** system to send a heartbeat to Dev
 - **UserPromptSubmit** — when you send a prompt
 - **Stop** — at the end of a session (final heartbeat)
 
-Heartbeats are sent **async** (non-blocking) and **rate-limited to 1 per minute** to avoid spamming the API.
+Heartbeats are sent **async** (non-blocking) and **rate-limited to 1 per minute** client-side. The server also enforces rate-limiting to prevent abuse on coding time stats.
 
 ### Data sent
 
