@@ -26,3 +26,5 @@ jobs:
       - run: npx @vscode/vsce publish --no-update-package-json
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - run: npx ovsx publish --no-update-package-json -p ${{ secrets.OVSX_PAT }}
