@@ -2,7 +2,7 @@
   "name": "devglobe",
   "displayName": "DevGlobe",
   "description": "Show your live coding presence on the DevGlobe world map",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "devglobe",
   "icon": "media/logo.png",
   "license": "MIT",
