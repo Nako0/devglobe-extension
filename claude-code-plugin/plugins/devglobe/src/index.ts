@@ -190,7 +190,7 @@ async function getGeoLocation(): Promise<GeoResult | null> {
 
   // Try primary provider: freeipapi.com
   let geo = await fetchGeo(
-    'https://freeipapi.com/api/json',
+    'https://free.freeipapi.com/api/json',
     (d) => {
       const [lat, lon] = snapToCity(d.cityName, d.countryCode, d.latitude, d.longitude);
       return {
@@ -334,10 +334,14 @@ async function fetchGeo(
   }
 }
 
-function httpGet(url: string): Promise<string> {
+function httpGet(url: string, redirects = 3): Promise<string> {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('https') ? httpsRequest : httpRequest;
     const req = mod(url, { method: 'GET', timeout: FETCH_TIMEOUT }, (res) => {
+      if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirects > 0) {
+        resolve(httpGet(res.headers.location, redirects - 1));
+        return;
+      }
       const chunks: Buffer[] = [];
       res.on('data', (c) => chunks.push(c));
       res.on('end', () => {
