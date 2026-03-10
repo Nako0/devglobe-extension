@@ -174,18 +174,17 @@ This saves your key and creates default settings in `~/.devglobe/`.
 | **Live heartbeat** | Hooks into Claude Code events. Sends a heartbeat at most once per minute. |
 | **Language detection** | Detects the language from file extensions being edited. |
 | **Git integration** | Detects your repo from the git remote. |
-| **Anonymous mode** | Hide your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Set `"anonymousMode": true` in `~/.devglobe/config.json`. |
+| **Anonymous mode** | **Enabled by default.** Hides your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Disable with `/devglobe:anonymous false`. |
 | **Status message** | Set a custom status on your profile: `/devglobe:status Your message here` |
-| **Repo sharing** | Set `"shareRepo": true` in `~/.devglobe/config.json` to display your repo on the globe. |
+| **Repo sharing** | Display your repo name on the globe: `/devglobe:share-repo true` (disabled by default). |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
 | `/devglobe:setup YOUR_API_KEY` | Configure the plugin with your API key |
-| `/devglobe:setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
-| `/devglobe:setup --share-repo` | Toggle repo sharing on/off |
-| `/devglobe:setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe:anonymous true/false` | Enable or disable anonymous mode |
+| `/devglobe:share-repo true/false` | Enable or disable repo sharing |
 | `/devglobe:status MESSAGE` | Set a status message on your DevGlobe profile |
 
 Settings are stored in `~/.devglobe/config.json` and can also be edited manually.
@@ -388,8 +387,10 @@ claude-code-plugin/
 │   ├── hooks/
 │   │   └── hooks.json     # Claude Code hook definitions
 │   ├── skills/
-│   │   ├── setup/SKILL.md # /devglobe:setup slash command
-│   │   └── status/SKILL.md# /devglobe:status slash command
+│   │   ├── setup/SKILL.md      # /devglobe:setup
+│   │   ├── anonymous/SKILL.md  # /devglobe:anonymous
+│   │   ├── share-repo/SKILL.md # /devglobe:share-repo
+│   │   └── status/SKILL.md     # /devglobe:status
 │   ├── scripts/
 │   │   └── run            # Heartbeat launcher
 │   └── package.json
