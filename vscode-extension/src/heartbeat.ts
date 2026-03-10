@@ -8,11 +8,12 @@ import { log } from './logger';
 /** Maps `vscode.env.appName` to a short editor ID sent in heartbeats. */
 function detectEditor(): string {
     const name = vscode.env.appName.toLowerCase();
-    if (name.includes('cursor'))    return 'cursor';
-    if (name.includes('windsurf'))  return 'windsurf';
-    if (name.includes('vscodium'))  return 'vscodium';
-    if (name.includes('positron'))  return 'positron';
-    if (name.includes('void'))      return 'void';
+    if (name.includes('cursor'))       return 'cursor';
+    if (name.includes('windsurf'))     return 'windsurf';
+    if (name.includes('vscodium'))     return 'vscodium';
+    if (name.includes('positron'))     return 'positron';
+    if (name.includes('void'))         return 'void';
+    if (name.includes('antigravity'))  return 'antigravity';
     return 'vscode';
 }
 
@@ -75,9 +76,9 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     body.p_editor = detectEditor();
     body.p_anonymous = anonymous;
 
-    if (repo) {
+    if (repo && config.get('shareRepo', false)) {
         body.p_repo = repo;
-        body.p_share_repo = config.get('shareRepo', false);
+        body.p_share_repo = true;
     }
 
     // Log without the API key for security

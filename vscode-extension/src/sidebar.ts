@@ -281,8 +281,7 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
                 </label>
             </div>
             <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-top: 2px; line-height: 1.4;">
-                Your coding time and commits are always tracked. This toggle controls
-                whether your repository name is visible on the globe.
+                When disabled, your repository name is never sent to the server. Enable to display it on your globe profile.
             </div>
             <div class="toggle-row" style="margin-top: 8px;">
                 <span>Anonymous mode</span>

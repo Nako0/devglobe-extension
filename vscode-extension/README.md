@@ -135,7 +135,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 |------|------|--------|
 | Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
 | Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
-| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score calculation), but **displayed on the globe only if you enable the "Share repo" toggle** (disabled by default). |
+| Repo name | **You decide** | `owner/repo` is **only sent to the server if you enable the "Share repo" toggle** (disabled by default). When disabled, your repo name never leaves your IDE. |
 | Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
 | Coding time | Yes | Accumulated per day, per language. Server-side rate-limited to prevent abuse. |
 | Status message | Yes | Only what you write yourself. |

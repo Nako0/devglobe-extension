@@ -132,7 +132,7 @@ class SidebarPanel : JPanel() {
         panel.add(shareRepoCheckbox, gbc)
 
         gbc.gridy = row++; gbc.insets = JBUI.insets(2, 0, 0, 0)
-        val hint = JBLabel("<html>Your coding time and commits are always tracked. This toggle controls whether your repository name is visible on the globe.</html>")
+        val hint = JBLabel("<html>When disabled, your repository name is never sent to the server. Enable to display it on your globe profile.</html>")
         hint.font = hint.font.deriveFont(Font.PLAIN, 11f)
         hint.foreground = UIManager.getColor("Label.disabledForeground")
         panel.add(hint, gbc)

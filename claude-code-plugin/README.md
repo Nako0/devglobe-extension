@@ -14,6 +14,9 @@ In Claude Code, run:
 
 ```
 /plugin marketplace add Nako0/devglobe-extension
+```
+
+```
 /plugin install devglobe@devglobe
 ```
 
