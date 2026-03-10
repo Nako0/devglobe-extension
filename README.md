@@ -63,7 +63,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 1. **Sign in** on [devglobe.xyz](https://devglobe.xyz) with GitHub
 2. **Copy your API key** from the site settings
 3. **Install the extension** in VS Code, your JetBrains IDE, or Claude Code
-4. **Paste the key** in the extension sidebar (or config file for Claude Code)
+4. **Paste the key** in the extension sidebar (or run `/devglobe-setup YOUR_API_KEY` for Claude Code)
 5. **You're online** — your marker appears on the globe
 
 The extension sends a **heartbeat every 30 seconds** as long as you're actively coding. If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
@@ -147,31 +147,22 @@ Same features as the VS Code extension, adapted for the JetBrains platform:
 
 ### Installation
 
-```bash
-git clone https://github.com/Nako0/devglobe-extension
+In Claude Code, run:
+
 ```
-
-Open Claude Code **from the same folder**, then run these two slash commands:
-
-```bash
-/plugin marketplace add ./devglobe-extension/claude-code-plugin
+/plugin marketplace add Nako0/devglobe-extension
 /plugin install devglobe@devglobe
 ```
 
 ### Setup
 
-Save your API key using one of these methods:
-
-**Option A** — Environment variable (add to `~/.zshrc` or `~/.bashrc`):
-```bash
-export DEVGLOBE_API_KEY="your-api-key-here"
+```
+/devglobe-setup YOUR_API_KEY
 ```
 
-**Option B** — Config file:
-```bash
-mkdir -p ~/.devglobe
-echo "your-api-key-here" > ~/.devglobe/api_key
-```
+Get your API key at [devglobe.xyz](https://devglobe.xyz) — sign in, then open your **profile settings**.
+
+This saves your key and creates default settings in `~/.devglobe/`.
 
 ### Features
 
@@ -181,18 +172,20 @@ echo "your-api-key-here" > ~/.devglobe/api_key
 | **Language detection** | Detects the language from file extensions being edited. |
 | **Git integration** | Detects your repo from the git remote. |
 | **Anonymous mode** | Hide your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Set `"anonymousMode": true` in `~/.devglobe/config.json`. |
+| **Status message** | Set a custom status on your profile: `/devglobe-status Your message here` |
 | **Repo sharing** | Set `"shareRepo": true` in `~/.devglobe/config.json` to display your repo on the globe. |
 
-### Configuration
+### Commands
 
-Create `~/.devglobe/config.json`:
+| Command | Description |
+|---------|-------------|
+| `/devglobe-setup YOUR_API_KEY` | Configure the plugin with your API key |
+| `/devglobe-setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
+| `/devglobe-setup --share-repo` | Toggle repo sharing on/off |
+| `/devglobe-setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe-status MESSAGE` | Set a status message on your DevGlobe profile |
 
-```json
-{
-  "shareRepo": true,
-  "anonymousMode": false
-}
-```
+Settings are stored in `~/.devglobe/config.json` and can also be edited manually.
 
 ---
 
@@ -387,12 +380,17 @@ jetbrains-plugin/
 claude-code-plugin/
 ├── plugins/devglobe/
 │   ├── src/
-│   │   ├── index.ts       # Hook handlers (PostToolUse, UserPromptSubmit, Stop)
-│   │   ├── geo.ts         # IP geolocation + anonymous mode
-│   │   ├── git.ts         # Repo detection from remote
+│   │   ├── index.ts       # Heartbeat logic (PostToolUse, UserPromptSubmit, Stop)
+│   │   ├── commands.ts    # Slash commands (/devglobe-setup, /devglobe-status)
 │   │   └── lang.ts        # File extension → language mapping
+│   ├── hooks/
+│   │   └── hooks.json     # Claude Code hook definitions
+│   ├── scripts/
+│   │   ├── run            # Heartbeat launcher
+│   │   └── commands       # Command handler launcher
 │   └── package.json
-└── manifest.json
+└── .claude-plugin/
+    └── marketplace.json
 ```
 
 ---
@@ -425,11 +423,17 @@ Test: `./gradlew runIde` or **Run → Run Plugin** in IntelliJ.
 ### Claude Code
 
 ```bash
-cd claude-code-plugin
+cd claude-code-plugin/plugins/devglobe
 npm install
+npm run build
 ```
 
-Install locally: `/plugin install /path/to/claude-code-plugin`
+Install locally:
+
+```
+/plugin marketplace add ./claude-code-plugin
+/plugin install devglobe@devglobe
+```
 
 ---
 
