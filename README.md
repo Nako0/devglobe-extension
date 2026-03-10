@@ -66,7 +66,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 4. **Paste the key** in the extension sidebar (or run `/devglobe:setup YOUR_API_KEY` for Claude Code)
 5. **You're online** — your marker appears on the globe
 
-The extension sends a **heartbeat every 30 seconds** as long as you're actively coding. If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
+The extension sends a **heartbeat every 30 seconds** as long as you're actively coding (every 60 seconds for Claude Code). If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
 
 ---
 
@@ -384,17 +384,22 @@ jetbrains-plugin/
 claude-code-plugin/
 ├── plugins/devglobe/
 │   ├── src/
-│   │   ├── index.ts       # Heartbeat logic (PostToolUse, UserPromptSubmit, Stop)
-│   │   └── lang.ts        # File extension → language mapping
+│   │   ├── index.ts           # Heartbeat logic (PostToolUse, UserPromptSubmit, Stop)
+│   │   ├── update-status.ts   # Status message API script
+│   │   ├── types.ts           # TypeScript type definitions
+│   │   ├── lang.ts            # File extension → language mapping
+│   │   └── data/
+│   │       └── city-centers.json  # 152k+ cities (GeoNames)
 │   ├── hooks/
-│   │   └── hooks.json     # Claude Code hook definitions
+│   │   └── hooks.json         # Claude Code hook definitions
 │   ├── skills/
-│   │   ├── setup/SKILL.md      # /devglobe:setup
-│   │   ├── anonymous/SKILL.md  # /devglobe:anonymous
-│   │   ├── share-repo/SKILL.md # /devglobe:share-repo
-│   │   └── status/SKILL.md     # /devglobe:status
+│   │   ├── setup/SKILL.md         # /devglobe:setup
+│   │   ├── anonymous/SKILL.md     # /devglobe:anonymous
+│   │   ├── share-repo/SKILL.md    # /devglobe:share-repo
+│   │   └── status/SKILL.md        # /devglobe:status
 │   ├── scripts/
-│   │   └── run            # Heartbeat launcher
+│   │   ├── run                # Heartbeat launcher
+│   │   └── update-status      # Status message launcher
 │   └── package.json
 └── .claude-plugin/
     └── marketplace.json

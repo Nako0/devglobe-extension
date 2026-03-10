@@ -32,4 +32,4 @@ Set repo sharing for DevGlobe. User arguments: $ARGUMENTS
 
 Confirm the change. Explain briefly what repo sharing does:
 - `true`: your current repo name (e.g. `owner/repo`) is visible on your DevGlobe profile.
-- `false`: your repo name is hidden from the globe (still sent server-side for project scoring, but never displayed).
+- `false`: your repo name is never sent to the server and is not visible on the globe.
