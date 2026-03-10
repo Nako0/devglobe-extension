@@ -273,11 +273,9 @@ function getAnonymousLocation(geo: GeoResult, sessionId: string): GeoResult {
     const displayName = titleCase(key);
     anonCity = geo.countryName ? `${displayName}, ${geo.countryName}` : displayName;
   } else {
-    // Fallback: random offset ±1-2° (still in the same rough area)
-    const offset = () => (Math.random() - 0.5) * 4;
-    anonLat = geo.lat != null ? Math.round((geo.lat + offset()) * 10) / 10 : null;
-    anonLon = geo.lon != null ? Math.round((geo.lon + offset()) * 10) / 10 : null;
-    anonCity = geo.countryName ?? null;
+    anonCity = null;
+    anonLat = null;
+    anonLon = null;
   }
 
   // Persist for this session
