@@ -6,11 +6,11 @@
 </p>
 
 <p align="center">
-  <a href="#-vs-code">VS Code</a> &nbsp;·&nbsp;
-  <a href="#-jetbrains">JetBrains</a> &nbsp;·&nbsp;
-  <a href="#-claude-code">Claude Code</a> &nbsp;·&nbsp;
-  <a href="#-privacy--security">Privacy</a> &nbsp;·&nbsp;
-  <a href="#-how-it-works-technically">Technical</a>
+  <a href="#vs-code">VS Code</a> &nbsp;·&nbsp;
+  <a href="#jetbrains">JetBrains</a> &nbsp;·&nbsp;
+  <a href="#claude-code">Claude Code</a> &nbsp;·&nbsp;
+  <a href="#privacy--security">Privacy</a> &nbsp;·&nbsp;
+  <a href="#how-it-works-technically">Technical</a>
 </p>
 
 ---
