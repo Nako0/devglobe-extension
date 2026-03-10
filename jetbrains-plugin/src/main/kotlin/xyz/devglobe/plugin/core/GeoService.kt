@@ -67,7 +67,7 @@ object GeoService {
         return s.replace(Regex("(?:^|[\\s-])\\S")) { it.value.uppercase() }
     }
 
-    private fun getAnonymousLocation(geo: GeoResult): GeoResult {
+    private fun getAnonymousLocation(geo: GeoResult): GeoResult? {
         val code = geo.countryCode?.uppercase() ?: ""
 
         // Reuse cached anonymous location if same country
@@ -78,28 +78,16 @@ object GeoService {
         val country = loadCityCenters()[code]
         val keys = country?.keys?.toList() ?: emptyList()
 
-        if (keys.isNotEmpty()) {
-            val key = keys.random()
-            val center = country!![key]!!
-            val lat = center[0].toDouble()
-            val lon = center[1].toDouble()
-            val displayName = titleCase(key)
-            val displayCity = if (geo.countryName != null) "$displayName, ${geo.countryName}" else displayName
+        if (keys.isEmpty()) return null
 
-            cachedAnonymous = GeoResult(displayCity, lat, lon, code, geo.countryName)
-        } else {
-            // Fallback: random offset ±1-2°
-            val offsetLat = (Math.random() - 0.5) * 4
-            val offsetLon = (Math.random() - 0.5) * 4
-            cachedAnonymous = GeoResult(
-                city = geo.countryName,
-                lat = round1(geo.lat + offsetLat),
-                lon = round1(geo.lon + offsetLon),
-                countryCode = code,
-                countryName = geo.countryName,
-            )
-        }
+        val key = keys.random()
+        val center = country!![key]!!
+        val lat = center[0].toDouble()
+        val lon = center[1].toDouble()
+        val displayName = titleCase(key)
+        val displayCity = if (geo.countryName != null) "$displayName, ${geo.countryName}" else displayName
 
+        cachedAnonymous = GeoResult(displayCity, lat, lon, code, geo.countryName)
         return cachedAnonymous!!
     }
 
@@ -169,7 +157,7 @@ object GeoService {
     }
 
     private fun fromFreeIpApi(): GeoResult? {
-        val body = fetchJson("https://freeipapi.com/api/json") ?: return null
+        val body = fetchJson("https://free.freeipapi.com/api/json") ?: return null
         return try {
             val obj = JsonParser.parseString(body).asJsonObject
             val lat = obj.get("latitude")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asDouble ?: return null

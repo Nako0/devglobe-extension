@@ -75,7 +75,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
  * Provider 1: freeipapi.com
  */
 async function fromFreeIpApi(): Promise<GeoResult | null> {
-    const data = await fetchJson('https://freeipapi.com/api/json') as {
+    const data = await fetchJson('https://free.freeipapi.com/api/json') as {
         cityName?: string; countryName?: string; countryCode?: string;
         latitude?: unknown; longitude?: unknown;
     } | null;
@@ -159,12 +159,10 @@ function getAnonymousLocation(geo: GeoResult): GeoResult {
             countryName: geo.countryName,
         };
     } else {
-        // Fallback: random offset ±1-2° (still in the same rough area)
-        const offset = () => (Math.random() - 0.5) * 4;
         cachedAnonymous = {
-            city: geo.countryName ?? null,
-            lat: geo.lat != null ? round1(geo.lat + offset()) : null,
-            lon: geo.lon != null ? round1(geo.lon + offset()) : null,
+            city: null,
+            lat: null,
+            lon: null,
             countryCode: geo.countryCode,
             countryName: geo.countryName,
         };

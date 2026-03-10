@@ -51,9 +51,9 @@ object HeartbeatService {
 
             language?.let { addProperty("p_lang", it) }
 
+            addProperty("p_share_repo", settings.state.shareRepo)
             if (repo != null && settings.state.shareRepo) {
                 addProperty("p_repo", repo)
-                addProperty("p_share_repo", true)
             }
         }
 

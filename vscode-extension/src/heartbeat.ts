@@ -76,9 +76,9 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     body.p_editor = detectEditor();
     body.p_anonymous = anonymous;
 
-    if (repo && config.get('shareRepo', false)) {
+    body.p_share_repo = config.get('shareRepo', false);
+    if (repo && body.p_share_repo) {
         body.p_repo = repo;
-        body.p_share_repo = true;
     }
 
     // Log without the API key for security
