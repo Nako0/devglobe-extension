@@ -1,6 +1,6 @@
 {
   "name": "devglobe-claude-code-plugin",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "DevGlobe plugin for Claude Code - appear active on the globe while coding with AI",
   "private": true,
   "scripts": {

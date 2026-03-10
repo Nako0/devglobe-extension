@@ -271,10 +271,7 @@ We know that when you install an extension, you trust the developer. We take tha
 
 The extension determines your city from your IP address via an external geolocation service (freeipapi.com, with fallback to ipapi.co). Both are free public services, no API key required.
 
-**Coordinates are intentionally degraded:**
-- Rounded to 1 decimal place, i.e. **approximately 11 km precision**
-- Example: `48.8566, 2.3522` (precise address) → `48.9, 2.4` (broad area)
-- Result: you appear in a region on the globe, not at your address
+**Coordinates are snapped to your city center** using a database of 152,000+ cities (GeoNames). You appear at your city's canonical center on the globe, not at your address. If the city is not found in the database, coordinates are randomly offset within a 20 km radius.
 
 The location is **cached for 1 hour** — the extension does not call the geolocation service on every heartbeat.
 

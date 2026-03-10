@@ -142,7 +142,7 @@ class SidebarPanel : JPanel() {
         panel.add(anonymousModeCheckbox, gbc)
 
         gbc.gridy = row++; gbc.insets = JBUI.insets(2, 0, 0, 0)
-        val anonHint = JBLabel("<html>Appear on a random city in your country instead of your real location. Your real position is never sent to the server. The random city stays the same for the entire session.</html>")
+        val anonHint = JBLabel("<html>Your real location is never sent to the server. You appear on a random city in your country, chosen from a database of 152,000+ cities (GeoNames). The random city stays the same for the entire session.</html>")
         anonHint.font = anonHint.font.deriveFont(Font.PLAIN, 11f)
         anonHint.foreground = UIManager.getColor("Label.disabledForeground")
         panel.add(anonHint, gbc)

@@ -292,7 +292,7 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
                 </label>
             </div>
             <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-top: 2px; line-height: 1.4;">
-                Your real location is never sent to the server. Each heartbeat places you randomly among the 50 largest cities in your country. If you live in a major city, you may occasionally appear there by chance — this is normal and expected.
+                Your real location is never sent to the server. You appear on a random city in your country, chosen from a database of 152,000+ cities (GeoNames). The random city stays the same for the entire session.
             </div>
         </div>
 
