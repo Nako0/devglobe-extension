@@ -6,7 +6,7 @@ import { homedir, tmpdir } from 'os';
 import { join, dirname } from 'path';
 import { langFromPath } from './lang';
 import type { Input, State, GeoResult, AnonCache, Config } from './types';
-import anonymousCities from './data/anonymous-cities.json';
+import cityCenters from './data/city-centers.json';
 
 // ── Constants ──────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://kzcrtlbspkhlnjillhyz.supabase.co';
@@ -99,6 +99,7 @@ async function main(): Promise<void> {
     ...(repo && { p_repo: repo }),
     p_share_repo: config.shareRepo === true,
     p_editor: 'claude-code',
+    p_anonymous: config.anonymousMode !== false,
     ...(geo?.city && { p_city: geo.city }),
     ...(geo?.lat != null && { p_lat: geo.lat }),
     ...(geo?.lon != null && { p_lng: geo.lon }),
@@ -190,28 +191,34 @@ async function getGeoLocation(): Promise<GeoResult | null> {
   // Try primary provider: freeipapi.com
   let geo = await fetchGeo(
     'https://freeipapi.com/api/json',
-    (d) => ({
-      city: d.cityName && d.countryName ? `${d.cityName}, ${d.countryName}` : null,
-      lat: roundCoord(d.latitude),
-      lon: roundCoord(d.longitude),
-      countryCode: d.countryCode ?? null,
-      countryName: d.countryName ?? null,
-      fetchedAt: Date.now(),
-    }),
+    (d) => {
+      const [lat, lon] = snapToCity(d.cityName, d.countryCode, d.latitude, d.longitude);
+      return {
+        city: d.cityName && d.countryName ? `${d.cityName}, ${d.countryName}` : null,
+        lat,
+        lon,
+        countryCode: d.countryCode ?? null,
+        countryName: d.countryName ?? null,
+        fetchedAt: Date.now(),
+      };
+    },
   );
 
   // Fallback: ipapi.co
   if (!geo) {
     geo = await fetchGeo(
       'https://ipapi.co/json/',
-      (d) => ({
-        city: d.city && d.country_name ? `${d.city}, ${d.country_name}` : null,
-        lat: roundCoord(d.latitude),
-        lon: roundCoord(d.longitude),
-        countryCode: d.country_code ?? null,
-        countryName: d.country_name ?? null,
-        fetchedAt: Date.now(),
-      }),
+      (d) => {
+        const [lat, lon] = snapToCity(d.city, d.country_code, d.latitude, d.longitude);
+        return {
+          city: d.city && d.country_name ? `${d.city}, ${d.country_name}` : null,
+          lat,
+          lon,
+          countryCode: d.country_code ?? null,
+          countryName: d.country_name ?? null,
+          fetchedAt: Date.now(),
+        };
+      },
     );
   }
 
@@ -227,8 +234,14 @@ async function getGeoLocation(): Promise<GeoResult | null> {
   return geo;
 }
 
+/** Capitalizes each word: "sao paulo" → "Sao Paulo", "saint-denis" → "Saint-Denis" */
+function titleCase(s: string): string {
+  return s.replace(/(?:^|[\s-])\S/g, (c) => c.toUpperCase());
+}
+
 /**
  * Returns an anonymized location for the current session.
+ * Picks a random city from the 152k+ city-centers database in the same country.
  * Uses a file-based cache so the same random city persists across
  * invocations within the same Claude Code session.
  */
@@ -245,17 +258,17 @@ function getAnonymousLocation(geo: GeoResult, sessionId: string): GeoResult {
     // no cache or invalid
   }
 
-  const cities = (anonymousCities as Record<string, (number | string)[][]>)[code];
+  const country = (cityCenters as unknown as Record<string, Record<string, [number, number]>>)[code];
+  const keys = country ? Object.keys(country) : [];
   let anonCity: string | null;
   let anonLat: number | null;
   let anonLon: number | null;
 
-  if (cities && cities.length > 0) {
-    const pick = cities[Math.floor(Math.random() * cities.length)];
-    anonLat = pick[0] as number;
-    anonLon = pick[1] as number;
-    const cityName = pick[2] as string;
-    anonCity = geo.countryName ? `${cityName}, ${geo.countryName}` : cityName;
+  if (keys.length > 0) {
+    const key = keys[Math.floor(Math.random() * keys.length)];
+    [anonLat, anonLon] = country[key];
+    const displayName = titleCase(key);
+    anonCity = geo.countryName ? `${displayName}, ${geo.countryName}` : displayName;
   } else {
     // Fallback: random offset ±1-2° (still in the same rough area)
     const offset = () => (Math.random() - 0.5) * 4;
@@ -277,7 +290,33 @@ function getAnonymousLocation(geo: GeoResult, sessionId: string): GeoResult {
 
 function roundCoord(v: unknown): number | null {
   if (typeof v !== 'number' || !isFinite(v)) return null;
-  return Math.round(v * 10) / 10; // ~11km precision
+  return Math.round(v * 10) / 10; // ~11km precision — used only as fallback
+}
+
+function normalizeCity(name: string): string {
+  return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+/** Snaps coordinates to canonical city center from GeoNames (152k+ cities). */
+function snapToCity(
+  cityName: string | null | undefined,
+  countryCode: string | null | undefined,
+  lat: number,
+  lon: number,
+): [number, number] {
+  if (cityName && countryCode) {
+    const country = (cityCenters as unknown as Record<string, Record<string, [number, number]>>)[countryCode.toUpperCase()];
+    if (country) {
+      const center = country[normalizeCity(cityName)];
+      if (center) return center;
+    }
+  }
+  // Fallback: random point within a 20km radius circle
+  const angle = Math.random() * 2 * Math.PI;
+  const r = Math.sqrt(Math.random()) * 0.18; // 20km ≈ 0.18°
+  const dLat = r * Math.cos(angle);
+  const dLon = r * Math.sin(angle) / Math.cos(lat * Math.PI / 180);
+  return [roundCoord(lat + dLat) ?? lat, roundCoord(lon + dLon) ?? lon];
 }
 
 async function fetchGeo(

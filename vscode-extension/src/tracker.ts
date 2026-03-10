@@ -93,6 +93,7 @@ export class Tracker implements vscode.Disposable {
         this.currentApiKey = apiKey;
         this.state.connected = true;
         this.state.tracking = false;
+        this.state.offline = false;
         this.state.shareRepo = config.get('shareRepo', false);
         this.state.anonymousMode = config.get('anonymousMode', false);
         this.state.statusMessage = config.get('statusMessage', '');

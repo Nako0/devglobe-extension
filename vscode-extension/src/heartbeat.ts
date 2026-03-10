@@ -73,6 +73,7 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
 
     if (activeLang) body.p_lang = activeLang;
     body.p_editor = detectEditor();
+    body.p_anonymous = anonymous;
 
     if (repo) {
         body.p_repo = repo;
@@ -112,18 +113,19 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
  * Returns true on success, false otherwise.
  */
 export async function updateStatusMessage(apiKey: string, message: string): Promise<boolean> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/update_status_message`, {
             method: 'POST',
             headers: HEADERS,
             body: JSON.stringify({ p_key: apiKey, p_message: message }),
             signal: controller.signal,
         });
-        clearTimeout(timer);
         return res.ok;
     } catch {
         return false;
+    } finally {
+        clearTimeout(timer);
     }
 }

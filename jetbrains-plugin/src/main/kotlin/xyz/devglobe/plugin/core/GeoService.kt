@@ -8,6 +8,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.text.Normalizer
 import java.time.Duration
 import kotlin.math.roundToInt
 
@@ -26,12 +27,12 @@ object GeoService {
         .connectTimeout(Duration.ofSeconds(Constants.GEO_TIMEOUT_SECONDS))
         .build()
 
-    private var cached: GeoResult? = null
-    private var lastFetch = 0L
+    @Volatile private var cached: GeoResult? = null
+    @Volatile private var lastFetch = 0L
 
     // Anonymous mode: cached per-session
-    private var cachedAnonymous: GeoResult? = null
-    private var anonymousCities: Map<String, List<List<Any>>>? = null
+    @Volatile private var cachedAnonymous: GeoResult? = null
+    @Volatile private var cityCentersDb: Map<String, Map<String, List<Number>>>? = null
 
     fun fetch(anonymous: Boolean = false): GeoResult? {
         if (cached != null && System.currentTimeMillis() - lastFetch < Constants.GEO_CACHE_TTL_MS) {
@@ -62,6 +63,10 @@ object GeoService {
     // Anonymous mode
     // -------------------------------------------------------------------------
 
+    private fun titleCase(s: String): String {
+        return s.replace(Regex("(?:^|[\\s-])\\S")) { it.value.uppercase() }
+    }
+
     private fun getAnonymousLocation(geo: GeoResult): GeoResult {
         val code = geo.countryCode?.uppercase() ?: ""
 
@@ -70,14 +75,16 @@ object GeoService {
             return cachedAnonymous!!
         }
 
-        val cities = loadAnonymousCities()[code]
+        val country = loadCityCenters()[code]
+        val keys = country?.keys?.toList() ?: emptyList()
 
-        if (cities != null && cities.isNotEmpty()) {
-            val pick = cities.random()
-            val lat = (pick[0] as Number).toDouble()
-            val lon = (pick[1] as Number).toDouble()
-            val cityName = pick[2] as String
-            val displayCity = if (geo.countryName != null) "$cityName, ${geo.countryName}" else cityName
+        if (keys.isNotEmpty()) {
+            val key = keys.random()
+            val center = country!![key]!!
+            val lat = center[0].toDouble()
+            val lon = center[1].toDouble()
+            val displayName = titleCase(key)
+            val displayCity = if (geo.countryName != null) "$displayName, ${geo.countryName}" else displayName
 
             cachedAnonymous = GeoResult(displayCity, lat, lon, code, geo.countryName)
         } else {
@@ -96,16 +103,44 @@ object GeoService {
         return cachedAnonymous!!
     }
 
-    private fun loadAnonymousCities(): Map<String, List<List<Any>>> {
-        if (anonymousCities != null) return anonymousCities!!
+    // -------------------------------------------------------------------------
+    // City center snapping (152k+ cities from GeoNames)
+    // -------------------------------------------------------------------------
+
+    private fun normalizeCity(name: String): String {
+        val nfd = Normalizer.normalize(name, Normalizer.Form.NFD)
+        return nfd.replace(Regex("[\\u0300-\\u036f]"), "").lowercase()
+    }
+
+    /** Snaps coordinates to canonical city center. Falls back to round1 if not found. */
+    private fun snapToCity(cityName: String?, countryCode: String?, lat: Double, lon: Double): Pair<Double, Double> {
+        if (cityName != null && countryCode != null) {
+            val country = loadCityCenters()[countryCode.uppercase()]
+            if (country != null) {
+                val center = country[normalizeCity(cityName)]
+                if (center != null && center.size >= 2) {
+                    return Pair(center[0].toDouble(), center[1].toDouble())
+                }
+            }
+        }
+        // Fallback: random point within a 20km radius circle
+        val angle = Math.random() * 2 * Math.PI
+        val r = Math.sqrt(Math.random()) * 0.18 // 20km ≈ 0.18°
+        val dLat = r * Math.cos(angle)
+        val dLon = r * Math.sin(angle) / Math.cos(lat * Math.PI / 180)
+        return Pair(round1(lat + dLat), round1(lon + dLon))
+    }
+
+    private fun loadCityCenters(): Map<String, Map<String, List<Number>>> {
+        if (cityCentersDb != null) return cityCentersDb!!
         return try {
-            val stream = GeoService::class.java.getResourceAsStream("/data/anonymous-cities.json")
+            val stream = GeoService::class.java.getResourceAsStream("/data/city-centers.json")
             val json = stream?.bufferedReader()?.readText() ?: "{}"
-            val type = object : TypeToken<Map<String, List<List<Any>>>>() {}.type
-            anonymousCities = Gson().fromJson(json, type)
-            anonymousCities!!
+            val type = object : TypeToken<Map<String, Map<String, List<Number>>>>() {}.type
+            cityCentersDb = Gson().fromJson(json, type)
+            cityCentersDb!!
         } catch (e: Exception) {
-            LOG.warn("Failed to load anonymous cities: ${e.message}")
+            LOG.warn("Failed to load city centers: ${e.message}")
             emptyMap()
         }
     }
@@ -148,7 +183,8 @@ object GeoService {
                 cityName != null && countryName != null -> "$cityName, $countryName"
                 else -> cityName ?: countryName
             }
-            GeoResult(city, round1(lat), round1(lon), countryCode, countryName)
+            val (snappedLat, snappedLon) = snapToCity(cityName, countryCode, lat, lon)
+            GeoResult(city, snappedLat, snappedLon, countryCode, countryName)
         } catch (e: Exception) {
             null
         }
@@ -169,7 +205,8 @@ object GeoService {
                 cityName != null && countryName != null -> "$cityName, $countryName"
                 else -> cityName ?: countryName
             }
-            GeoResult(city, round1(lat), round1(lon), countryCode, countryName)
+            val (snappedLat, snappedLon) = snapToCity(cityName, countryCode, lat, lon)
+            GeoResult(city, snappedLat, snappedLon, countryCode, countryName)
         } catch (e: Exception) {
             null
         }

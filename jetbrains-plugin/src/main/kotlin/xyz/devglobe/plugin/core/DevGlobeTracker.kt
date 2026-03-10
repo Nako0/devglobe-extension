@@ -22,15 +22,16 @@ class DevGlobeTracker : Disposable {
 
     private val LOG = Logger.getInstance(DevGlobeTracker::class.java)
 
-    private var state = TrackerState()
+    @Volatile private var state = TrackerState()
     private var scheduler: ScheduledExecutorService? = null
     private var heartbeatTask: ScheduledFuture<*>? = null
     private var currentApiKey: String? = null
 
     @Volatile private var lastActivity = 0L
+    private val started = AtomicBoolean(false)
     private val ticking = AtomicBoolean(false)
-    private var consecutiveNetErrors = 0
-    private var last5xxWarning = 0L
+    @Volatile private var consecutiveNetErrors = 0
+    @Volatile private var last5xxWarning = 0L
 
     private var documentListener: DocumentListener? = null
     private val stateListeners = CopyOnWriteArrayList<(TrackerState) -> Unit>()
@@ -54,6 +55,7 @@ class DevGlobeTracker : Disposable {
     }
 
     fun start(apiKey: String) {
+        if (!started.compareAndSet(false, true)) return
         clearTimer()
         currentApiKey = apiKey
         consecutiveNetErrors = 0
@@ -89,6 +91,7 @@ class DevGlobeTracker : Disposable {
     }
 
     fun stop() {
+        started.set(false)
         pause()
         currentApiKey = null
         state = state.copy(connected = false)
@@ -96,6 +99,7 @@ class DevGlobeTracker : Disposable {
     }
 
     fun reset() {
+        started.set(false)
         stop()
         state = TrackerState()
         pushState()
@@ -154,25 +158,30 @@ class DevGlobeTracker : Disposable {
             val project = LanguageService.getFocusedProject()
             val result = HeartbeatService.sendHeartbeat(apiKey, project)
 
-            consecutiveNetErrors = 0
-            if (state.offline) {
-                state = state.copy(offline = false)
-                LOG.info("Network restored — tracking resumed")
-                notify("Network restored — tracking resumed", NotificationType.INFORMATION)
-            }
+            // Mutate state on EDT to avoid race conditions with updatePreference()
+            ApplicationManager.getApplication().invokeLater {
+                consecutiveNetErrors = 0
+                if (state.offline) {
+                    state = state.copy(offline = false)
+                    LOG.info("Network restored — tracking resumed")
+                    notify("Network restored — tracking resumed", NotificationType.INFORMATION)
+                }
 
-            state = state.copy(
-                codingTime = formatTime(result.todaySeconds),
-                language = result.language,
-            )
-            pushState()
-        } catch (e: NetworkError) {
-            consecutiveNetErrors++
-            LOG.warn("Network error #$consecutiveNetErrors: ${e.message}")
-            if (consecutiveNetErrors >= Constants.OFFLINE_THRESHOLD && !state.offline) {
-                state = state.copy(offline = true)
+                state = state.copy(
+                    codingTime = formatTime(result.todaySeconds),
+                    language = result.language,
+                )
                 pushState()
-                notify("No network — tracking paused", NotificationType.WARNING)
+            }
+        } catch (e: NetworkError) {
+            ApplicationManager.getApplication().invokeLater {
+                consecutiveNetErrors++
+                LOG.warn("Network error #$consecutiveNetErrors: ${e.message}")
+                if (consecutiveNetErrors >= Constants.OFFLINE_THRESHOLD && !state.offline) {
+                    state = state.copy(offline = true)
+                    pushState()
+                    notify("No network — tracking paused", NotificationType.WARNING)
+                }
             }
         } catch (e: ApiError) {
             LOG.error("Heartbeat API error (${e.status}): ${e.message}")

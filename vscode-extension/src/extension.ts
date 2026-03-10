@@ -85,9 +85,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 const key = String(msg.key ?? '');
                 if (!ALLOWED_TOGGLE_KEYS.has(key)) break;
                 const value = Boolean(msg.value);
-                await config.update(key, value, vscode.ConfigurationTarget.Global);
                 tracker.updatePreference(key as keyof ReturnType<typeof tracker.getState>, value);
                 if (key === 'anonymousMode') resetAnonymousLocation();
+                await config.update(key, value, vscode.ConfigurationTarget.Global);
                 break;
             }
 

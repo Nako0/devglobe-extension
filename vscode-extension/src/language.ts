@@ -57,7 +57,7 @@ const LANG_MAP: Record<string, string> = {
     // Config / data
     json: 'JSON', jsonc: 'JSON', jsonnet: 'Jsonnet',
     yaml: 'YAML', toml: 'TOML', xml: 'XML', ini: 'INI',
-    dotenv: 'Env', properties: 'Properties',
+    dotenv: 'Config', properties: 'Config',
     csv: 'CSV', tsv: 'TSV',
     cue: 'CUE', dhall: 'Dhall', pkl: 'Pkl',
     proto: 'Protobuf', protobuf: 'Protobuf', thrift: 'Thrift', avro: 'Avro',

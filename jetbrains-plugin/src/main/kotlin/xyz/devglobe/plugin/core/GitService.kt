@@ -11,9 +11,9 @@ object GitService {
     private val LOG = Logger.getInstance(GitService::class.java)
 
     // Repo cache (5 min TTL)
-    private var cachedRepo: String? = null
-    private var cachedRepoCwd: String? = null
-    private var repoFetchedAt = 0L
+    @Volatile private var cachedRepo: String? = null
+    @Volatile private var cachedRepoCwd: String? = null
+    @Volatile private var repoFetchedAt = 0L
 
     /**
      * Returns "owner/repo" for the active file's git remote, or null.

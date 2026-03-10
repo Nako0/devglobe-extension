@@ -1,6 +1,6 @@
 import { GEO_CACHE_TTL, GEO_TIMEOUT_MS } from './constants';
 import { log } from './logger';
-import anonymousCities from './data/anonymous-cities.json';
+import cityCenters from './data/city-centers.json';
 
 interface GeoResult {
     city: string | null;
@@ -14,9 +14,41 @@ let cached: GeoResult | null = null;
 let cachedAnonymous: GeoResult | null = null;
 let lastFetch = 0;
 
-/** Rounds to 1 decimal (~11 km precision) to protect privacy. */
+/** Rounds to 1 decimal (~11 km precision) — used only as fallback. */
 function round1(n: number): number {
     return Math.round(n * 10) / 10;
+}
+
+/**
+ * Normalizes a city name for lookup: lowercase, no diacritics.
+ */
+function normalizeCity(name: string): string {
+    return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+/**
+ * Snaps coordinates to the canonical city center from GeoNames (152k+ cities).
+ * If the city is not found, falls back to rounding coordinates to ~11 km.
+ */
+function snapToCity(
+    cityName: string | null | undefined,
+    countryCode: string | null | undefined,
+    lat: number,
+    lon: number,
+): [number, number] {
+    if (cityName && countryCode) {
+        const country = (cityCenters as unknown as Record<string, Record<string, [number, number]>>)[countryCode.toUpperCase()];
+        if (country) {
+            const center = country[normalizeCity(cityName)];
+            if (center) return center;
+        }
+    }
+    // Fallback: random point within a 20km radius circle
+    const angle = Math.random() * 2 * Math.PI;
+    const r = Math.sqrt(Math.random()) * 0.18; // 20km ≈ 0.18°
+    const dLat = r * Math.cos(angle);
+    const dLon = r * Math.sin(angle) / Math.cos(lat * Math.PI / 180);
+    return [round1(lat + dLat), round1(lon + dLon)];
 }
 
 /** Returns true if lat/lon are within valid WGS-84 bounds. */
@@ -57,10 +89,11 @@ async function fromFreeIpApi(): Promise<GeoResult | null> {
         ? `${data.cityName}, ${data.countryName}`
         : (data.cityName ?? data.countryName ?? null);
 
+    const [snappedLat, snappedLon] = snapToCity(data.cityName, data.countryCode, lat, lon);
     return {
         city,
-        lat: round1(lat),
-        lon: round1(lon),
+        lat: snappedLat,
+        lon: snappedLon,
         countryCode: data.countryCode ?? null,
         countryName: data.countryName ?? null,
     };
@@ -84,17 +117,24 @@ async function fromIpApiCo(): Promise<GeoResult | null> {
         ? `${data.city}, ${data.country_name}`
         : (data.city ?? data.country_name ?? null);
 
+    const [snappedLat, snappedLon] = snapToCity(data.city, data.country_code, lat, lon);
     return {
         city,
-        lat: round1(lat),
-        lon: round1(lon),
+        lat: snappedLat,
+        lon: snappedLon,
         countryCode: data.country_code ?? null,
         countryName: data.country_name ?? null,
     };
 }
 
+/** Capitalizes each word: "sao paulo" → "Sao Paulo", "saint-denis" → "Saint-Denis" */
+function titleCase(s: string): string {
+    return s.replace(/(?:^|[\s-])\S/g, (c) => c.toUpperCase());
+}
+
 /**
  * Returns an anonymized location for the current session.
+ * Picks a random city from the 152k+ city-centers database in the same country.
  * The random city is picked once and reused until `resetAnonymousLocation()` is called.
  */
 function getAnonymousLocation(geo: GeoResult): GeoResult {
@@ -104,15 +144,17 @@ function getAnonymousLocation(geo: GeoResult): GeoResult {
     }
 
     const code = geo.countryCode?.toUpperCase() ?? '';
-    const cities = (anonymousCities as Record<string, (number | string)[][]>)[code];
+    const country = (cityCenters as unknown as Record<string, Record<string, [number, number]>>)[code];
+    const keys = country ? Object.keys(country) : [];
 
-    if (cities && cities.length > 0) {
-        const pick = cities[Math.floor(Math.random() * cities.length)];
-        const cityName = pick[2] as string;
+    if (keys.length > 0) {
+        const key = keys[Math.floor(Math.random() * keys.length)];
+        const [lat, lon] = country[key];
+        const displayName = titleCase(key);
         cachedAnonymous = {
-            city: geo.countryName ? `${cityName}, ${geo.countryName}` : cityName,
-            lat: pick[0] as number,
-            lon: pick[1] as number,
+            city: geo.countryName ? `${displayName}, ${geo.countryName}` : displayName,
+            lat,
+            lon,
             countryCode: geo.countryCode,
             countryName: geo.countryName,
         };
@@ -144,7 +186,7 @@ export function resetAnonymousLocation(): void {
  *
  * - Tries freeipapi.com first, falls back to ipapi.co
  * - Results are cached for one hour
- * - Coordinates are rounded to ~11 km precision for privacy
+ * - Coordinates are snapped to city centers (152k+ cities) for privacy
  * - When `anonymous` is true, returns a random city in the same country
  * - Returns stale cache if both providers fail
  */

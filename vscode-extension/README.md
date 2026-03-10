@@ -36,6 +36,7 @@ The extension sends a **heartbeat every 30 seconds** as long as you're actively 
 | **Live heartbeat** | Sends your activity every 30s. Auto-pauses after 1 min of inactivity. |
 | **Language detection** | Detects 48+ languages from your active editor tab. |
 | **Git integration** | Detects your repo from the git remote. Commit stats (insertions/deletions) are verified server-side via the GitHub API. |
+| **Anonymous mode** | Hide your exact location — your marker is placed on a random city in your country (from a database of 152,000+ cities worldwide). |
 | **Status message** | Write what you're working on — visible on your globe profile. |
 | **Repo sharing** | **You decide.** Your repo name is never shown unless you explicitly enable this toggle (disabled by default). |
 | **Offline recovery** | Detects connection loss and automatically resumes when the network is back. |
@@ -58,6 +59,7 @@ Two views in the side panel:
 |---------|---------|-------------|
 | `devglobe.trackingEnabled` | `true` | Enable/disable tracking |
 | `devglobe.shareRepo` | `false` | Make your repo name visible on the globe |
+| `devglobe.anonymousMode` | `false` | Hide your exact location — your marker is placed on a random city in your country (from a database of 152,000+ cities worldwide) |
 | `devglobe.statusMessage` | `""` | Your status message (max 100 characters) |
 
 ---
@@ -132,8 +134,9 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 | Data | Sent | Detail |
 |------|------|--------|
 | Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
-| Approximate location | Yes | City + coordinates **rounded to ~11 km**. You appear as an area on the globe, not an address. |
-| Repo name | **You decide** | `owner/repo` format only. **Sharing is disabled by default.** Nobody sees your repo unless you enable the toggle. |
+| Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
+| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score calculation), but **displayed on the globe only if you enable the "Share repo" toggle** (disabled by default). |
+| Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
 | Coding time | Yes | Accumulated per day, per language. Server-side rate-limited to prevent abuse. |
 | Status message | Yes | Only what you write yourself. |
 
@@ -162,7 +165,7 @@ The server enforces rate-limiting on heartbeats to prevent abuse on coding time 
 
 ### Location
 
-The extension determines your city from your IP address via an external geolocation service. Coordinates are **rounded to 1 decimal place (~11 km)** — you appear in a region on the globe, not at your address. The location is cached for 1 hour.
+The extension determines your city from your IP address via an external geolocation service. Coordinates are **snapped to your city center** using a database of 152,000+ cities (GeoNames) — you appear at your city's canonical center on the globe, not at your address. If the city is not found in the database, coordinates are randomly offset within a 20 km radius. The location is cached for 1 hour.
 
 **Your IP address is never transmitted to DevGlobe.**
 

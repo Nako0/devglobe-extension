@@ -103,7 +103,16 @@ export function langFromPath(filePath: string): string | null {
   const base = filePath.split('/').pop() || '';
   if (base in NAME_LANG) return NAME_LANG[base];
 
-  const ext = extname(base);
+  // Check compound extensions (e.g. .blade.php, .d.ts, .test.ts) before
+  // falling back to extname(), which only returns the last segment.
+  const lowerBase = base.toLowerCase();
+  for (const key of Object.keys(EXT_LANG)) {
+    if (key.startsWith('.') && key.includes('.', 1) && lowerBase.endsWith(key)) {
+      return EXT_LANG[key];
+    }
+  }
+
+  const ext = extname(base).toLowerCase();
   if (!ext) return null;
 
   return EXT_LANG[ext] ?? null;

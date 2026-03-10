@@ -19,9 +19,7 @@ class DevGlobeStartupActivity : StartupActivity.DumbAware {
         val settings = DevGlobeSettings.getInstance()
         val tracker = DevGlobeTracker.getInstance()
 
-        // Skip if already tracking (another project triggered startup)
-        if (tracker.getState().tracking) return
-
+        // start() is guarded by an AtomicBoolean — safe against concurrent project opens
         if (settings.state.trackingEnabled) {
             tracker.start(apiKey)
         } else {

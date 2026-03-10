@@ -13,8 +13,16 @@ import xyz.devglobe.plugin.core.DevGlobeTracker
 import xyz.devglobe.plugin.core.HeartbeatService
 import xyz.devglobe.plugin.core.TrackerState
 import xyz.devglobe.plugin.settings.DevGlobeSettings
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class SidebarFactory : ToolWindowFactory, DumbAware {
+
+    companion object {
+        private val executor: ExecutorService = Executors.newSingleThreadExecutor { r ->
+            Thread(r, "DevGlobe-Sidebar").apply { isDaemon = true }
+        }
+    }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val tracker = DevGlobeTracker.getInstance()
@@ -54,7 +62,7 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
 
             override fun onSetStatus(message: String) {
                 val apiKey = ApiKeyStorage.get() ?: return
-                Thread {
+                executor.submit {
                     val ok = HeartbeatService.updateStatusMessage(apiKey, message)
                     com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
                         if (ok) {
@@ -67,7 +75,7 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
                             notify(project, "Failed to update status.", NotificationType.ERROR)
                         }
                     }
-                }.start()
+                }
             }
 
             override fun onToggleShareRepo(enabled: Boolean) {

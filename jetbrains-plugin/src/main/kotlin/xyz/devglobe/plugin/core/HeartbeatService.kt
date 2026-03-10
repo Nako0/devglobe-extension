@@ -41,6 +41,7 @@ object HeartbeatService {
         val json = JsonObject().apply {
             addProperty("p_key", apiKey)
             addProperty("p_editor", detectEditor())
+            addProperty("p_anonymous", settings.state.anonymousMode)
 
             if (geo != null) {
                 geo.city?.let { addProperty("p_city", it) }

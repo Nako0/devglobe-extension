@@ -8,6 +8,7 @@
 <p align="center">
   <a href="#-vs-code">VS Code</a> &nbsp;·&nbsp;
   <a href="#-jetbrains">JetBrains</a> &nbsp;·&nbsp;
+  <a href="#-claude-code">Claude Code</a> &nbsp;·&nbsp;
   <a href="#-privacy--security">Privacy</a> &nbsp;·&nbsp;
   <a href="#-how-it-works-technically">Technical</a>
 </p>
@@ -61,8 +62,8 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 
 1. **Sign in** on [devglobe.xyz](https://devglobe.xyz) with GitHub
 2. **Copy your API key** from the site settings
-3. **Install the extension** in VS Code or your JetBrains IDE
-4. **Paste the key** in the extension sidebar
+3. **Install the extension** in VS Code, your JetBrains IDE, or Claude Code
+4. **Paste the key** in the extension sidebar (or config file for Claude Code)
 5. **You're online** — your marker appears on the globe
 
 The extension sends a **heartbeat every 30 seconds** as long as you're actively coding. If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
@@ -83,7 +84,8 @@ The extension sends a **heartbeat every 30 seconds** as long as you're actively 
 |---------|-------------|
 | **Live heartbeat** | Sends your activity every 30s. Auto-pauses after 1 min of inactivity. |
 | **Language detection** | Detects 48+ languages from your active editor tab. |
-| **Git integration** | Detects your repo from the git remote. Counts insertions/deletions over 24h on each new commit. |
+| **Git integration** | Detects your repo from the git remote. Commit stats (insertions/deletions) are verified server-side via the GitHub API — never sent by the extension. |
+| **Anonymous mode** | Hide your exact location — your marker is placed on a random city in your country (from a database of 152,000+ cities worldwide). |
 | **Status message** | Write what you're working on — visible on your globe profile. |
 | **Repo sharing** | **You decide.** Your repo name is never shown unless you explicitly enable this toggle (disabled by default). |
 | **Offline recovery** | Detects connection loss and automatically resumes when the network is back. |
@@ -126,7 +128,8 @@ Same features as the VS Code extension, adapted for the JetBrains platform:
 |---------|-------------|
 | **Live heartbeat** | 30s interval, pauses after 1 min of inactivity. |
 | **Language detection** | Uses JetBrains' native FileType system — supports all languages in your IDE without configuration. |
-| **Git integration** | Same repo detection + commit stats. |
+| **Git integration** | Same repo detection. Commit stats verified server-side via GitHub API. |
+| **Anonymous mode** | Same privacy toggle as VS Code — a random city in your country (from a database of 152,000+ cities worldwide). |
 | **Status message** | Editable from the side panel, persists in IDE settings. |
 | **Repo sharing** | Same toggle as VS Code — your repo stays invisible unless explicitly enabled. |
 | **Offline recovery** | Automatic detection + resume when the network is back. |
@@ -140,6 +143,99 @@ Same features as the VS Code extension, adapted for the JetBrains platform:
 
 ---
 
+## Claude Code
+
+### Installation
+
+```bash
+git clone https://github.com/Nako0/devglobe-extension
+```
+
+Open Claude Code **from the same folder**, then run these two slash commands:
+
+```bash
+/plugin marketplace add ./devglobe-extension/claude-code-plugin
+/plugin install devglobe@devglobe
+```
+
+### Setup
+
+Save your API key using one of these methods:
+
+**Option A** — Environment variable (add to `~/.zshrc` or `~/.bashrc`):
+```bash
+export DEVGLOBE_API_KEY="your-api-key-here"
+```
+
+**Option B** — Config file:
+```bash
+mkdir -p ~/.devglobe
+echo "your-api-key-here" > ~/.devglobe/api_key
+```
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Live heartbeat** | Hooks into Claude Code events. Sends a heartbeat at most once per minute. |
+| **Language detection** | Detects the language from file extensions being edited. |
+| **Git integration** | Detects your repo from the git remote. |
+| **Anonymous mode** | Hide your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Set `"anonymousMode": true` in `~/.devglobe/config.json`. |
+| **Repo sharing** | Set `"shareRepo": true` in `~/.devglobe/config.json` to display your repo on the globe. |
+
+### Configuration
+
+Create `~/.devglobe/config.json`:
+
+```json
+{
+  "shareRepo": true,
+  "anonymousMode": false
+}
+```
+
+---
+
+## GitHub App — Verified commit stats
+
+DevGlobe uses a [GitHub App](https://github.com/apps/devglobeapp) to display **verified** commit statistics (insertions & deletions per week) on featured projects. This replaces the old client-side stats collection, which could be falsified.
+
+### How it works
+
+1. On your DevGlobe profile, click **"Connect repo"** in the Projects section
+2. You're redirected to GitHub to install the [DevGlobe App](https://github.com/apps/devglobeapp) on the repos you choose
+3. A server-side job syncs commit stats from the GitHub API **every 15 minutes**
+4. Stats are displayed on your featured projects in the carousel and on your profile
+
+### What the GitHub App can access
+
+The app requests **Metadata: Read-only** — the most minimal GitHub permission available. It uses the `GET /repos/{owner/repo}/stats/contributors` endpoint to retrieve aggregated contribution statistics (weekly insertions and deletions per contributor).
+
+| Data | Access |
+|------|--------|
+| Aggregated commit statistics (insertions/deletions per week) | **Read** |
+| Repo metadata (name, description, stars, forks) | **Read** |
+| Your source code | **No access** |
+| Your file contents or file names | **No access** |
+| Your commit messages | **No access** |
+| Your issues and pull requests | **No access** |
+| Your repo settings | **No access** |
+| Your actions/workflows | **No access** |
+| Your collaborators list | **No access** |
+
+### What happens if you don't install it
+
+- You can still use DevGlobe normally (heartbeats, coding time, leaderboard)
+- You can still add projects to your profile
+- You just **can't feature a project** in the carousel without connecting its repo
+- No commit stats will be displayed on your profile
+
+### How to uninstall
+
+Go to [github.com/settings/installations](https://github.com/settings/installations), find "DevGlobe", and click **Uninstall**. Your coding time and profile data on DevGlobe remain intact.
+
+---
+
 ## Privacy & Security
 
 We know that when you install an extension, you trust the developer. We take that seriously. Here's exactly what the extension does — no gray area.
@@ -149,9 +245,10 @@ We know that when you install an extension, you trust the developer. We take tha
 | Data | Sent | Detail |
 |------|------|--------|
 | Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
-| Approximate location | Yes | City + coordinates **rounded to ~11 km**. You appear as an area on the globe, not an address. |
-| Repo name | **You decide** | `owner/repo` format only. **Sharing is disabled by default.** Nobody sees your repo unless you explicitly enable the "Share repo" toggle. |
-| Commit stats | Yes | Number of insertions and deletions over 24h. Sent only once per new detected commit. |
+| Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
+| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score calculation), but **displayed on the globe only if you enable the "Share repo" toggle** (disabled by default). |
+| Commit stats | **Never by the extension** | Insertions/deletions are fetched **server-side** from the GitHub API via the GitHub App. The extension never reads or sends commit data. |
+| Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
 | Coding time | Yes | Accumulated per day, per language. |
 | Status message | Yes | Only what you write yourself. |
 
@@ -191,6 +288,7 @@ Your DevGlobe API key is **never stored in plain text**.
 |-----|----------------|
 | VS Code | **SecretStorage** — your OS system keychain (macOS Keychain, Windows Credential Manager, Linux libsecret) |
 | JetBrains | **PasswordSafe** — the IDE's native credential manager, backed by the OS keychain |
+| Claude Code | **Environment variable** (`DEVGLOBE_API_KEY`) or **config file** (`~/.devglobe/api_key`) |
 
 The VS Code extension automatically migrates old keys that were stored in plain text in `settings.json` to the secure keychain.
 
@@ -203,7 +301,7 @@ The VS Code extension automatically migrates old keys that were stored in plain 
 
 ### Open source
 
-Both extensions are open source. You can read every line of code that runs on your machine. That's the purpose of this repository.
+All extensions are open source. You can read every line of code that runs on your machine. That's the purpose of this repository.
 
 ---
 
@@ -216,13 +314,13 @@ Every 30 seconds, if you've typed code in the last minute, the extension sends a
 ```
 {
   api_key,                      // your identifier (stored in the OS keychain)
-  hour,                         // 0-23
-  latitude, longitude,          // rounded to 1 decimal (~11 km)
+  latitude, longitude,          // snapped to city center (152k+ cities)
   city,                         // "Paris, France"
   language,                     // "TypeScript"
-  repo,                         // "owner/repo" (sent to the backend but display on the globe depends on your preferences, sending to the backend is used for featured project score calculation)
-  share_repo,                   // true/false
-  insertions, deletions         // git stats 24h (on new commit only)
+  editor,                       // "vscode", "intellij", "claude-code", etc.
+  repo,                         // "owner/repo" (always sent for score calculation, but only visible on the globe if share_repo is true)
+  share_repo,                   // true/false — controls whether the repo name is displayed on your profile
+  anonymous,                    // true/false — when true, coordinates are a random city
 }
 ```
 
@@ -232,12 +330,19 @@ The server responds with today's total coding time. The extension updates the di
 
 - **VS Code**: reads the `languageId` of the active editor, then translates it via a table of 48+ languages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
 - **JetBrains**: uses the IDE's native `FileType` system — no manual table, automatically supports all languages your IDE supports
+- **Claude Code**: detects the language from the file extension of edited files
 
 ### Git integration
 
 The extension runs `git remote get-url origin` in your active file's directory and extracts the `owner/repo` identifier from the URL (SSH or HTTPS). The result is cached for 5 minutes.
 
-When a new commit is detected (via `git rev-parse HEAD`), the extension counts insertions and deletions over the last 24h via `git log --shortstat`. **No code content, commit message or file name is read.**
+**The extension never reads commits, diffs, or file contents.** Commit statistics (insertions/deletions) are fetched entirely server-side via the GitHub API using the token granted by the [GitHub App](#-github-app--verified-commit-stats). This prevents falsification — the stats displayed on DevGlobe always match the real data on GitHub.
+
+### Anonymous mode
+
+When anonymous mode is enabled, the extension replaces your real coordinates with a **random city in your country**, chosen from a database of 152,000+ cities worldwide (GeoNames). Your actual location is never transmitted to DevGlobe. The random city is selected once per session and stays consistent until you restart your IDE or toggle the mode.
+
+On the globe, your profile displays an "anonymous mode" badge instead of your city name.
 
 ### Offline detection
 
@@ -253,7 +358,7 @@ vscode-extension/
 │   ├── heartbeat.ts      # HTTP calls to the database
 │   ├── sidebar.ts        # Side panel (webview HTML/CSS/JS)
 │   ├── geo.ts            # IP geolocation (dual provider + fallback)
-│   ├── git.ts            # Repo detection + commit stats
+│   ├── git.ts            # Repo detection (owner/repo from remote)
 │   ├── language.ts       # languageId → display name translation
 │   ├── logger.ts         # Debug/info/warn/error logs
 │   └── constants.ts      # URLs, timeouts, intervals
@@ -265,7 +370,7 @@ jetbrains-plugin/
 │   │   ├── DevGlobeTracker.kt    # Singleton tracker, heartbeat scheduler
 │   │   ├── HeartbeatService.kt   # HTTP client
 │   │   ├── GeoService.kt         # IP geolocation (same logic)
-│   │   ├── GitService.kt         # Repo detection + commit stats
+│   │   ├── GitService.kt         # Repo detection (owner/repo from remote)
 │   │   ├── LanguageService.kt    # Language detection via native FileType
 │   │   ├── TrackerState.kt       # Immutable state
 │   │   └── Constants.kt          # URLs, timeouts, intervals
@@ -281,6 +386,16 @@ jetbrains-plugin/
 ├── src/main/resources/META-INF/
 │   └── plugin.xml
 └── build.gradle.kts
+
+claude-code-plugin/
+├── plugins/devglobe/
+│   ├── src/
+│   │   ├── index.ts       # Hook handlers (PostToolUse, UserPromptSubmit, Stop)
+│   │   ├── geo.ts         # IP geolocation + anonymous mode
+│   │   ├── git.ts         # Repo detection from remote
+│   │   └── lang.ts        # File extension → language mapping
+│   └── package.json
+└── manifest.json
 ```
 
 ---
@@ -309,6 +424,15 @@ cd jetbrains-plugin
 The `.zip` will be in `build/distributions/`.
 
 Test: `./gradlew runIde` or **Run → Run Plugin** in IntelliJ.
+
+### Claude Code
+
+```bash
+cd claude-code-plugin
+npm install
+```
+
+Install locally: `/plugin install /path/to/claude-code-plugin`
 
 ---
 
