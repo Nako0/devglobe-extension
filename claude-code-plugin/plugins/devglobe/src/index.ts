@@ -40,30 +40,19 @@ async function main(): Promise<void> {
   const now = Date.now();
 
   // ── Detect language from hook input ────────────────────────────────
+  const filePath = input.tool_input?.file_path || input.tool_response?.filePath;
   let language: string | null = null;
 
-  // 1. Direct: PostToolUse gives us the file path in tool_input or tool_response
-  if (hook_event_name === 'PostToolUse') {
-    const filePath = input.tool_input?.file_path || input.tool_response?.filePath;
-    if (filePath) {
-      language = langFromPath(filePath);
-    }
+  if (hook_event_name === 'PostToolUse' && filePath) {
+    language = langFromPath(filePath);
   }
 
-  // 2. Fallback: reuse last known language from state
   if (!language && state.lastLanguage) {
     language = state.lastLanguage;
   }
 
-  // ── Rate limiting (skip if language just changed or was missing) ───
-  const languageChanged = language && language !== state.lastLanguage;
-  if (hook_event_name !== 'Stop' && !languageChanged && state.lastHeartbeatAt) {
-    if (now - state.lastHeartbeatAt < RATE_LIMIT_MS) return;
-  }
-
-  // ── Detect repository (from file's directory first, then cwd) ──────
+  // ── Detect repository (before rate limiting so PostToolUse can persist it) ──
   let repo: string | null = null;
-  const filePath = input.tool_input?.file_path || input.tool_response?.filePath;
   const gitDirs = filePath ? [dirname(filePath), cwd] : [cwd];
   for (const dir of gitDirs) {
     try {
@@ -79,6 +68,20 @@ async function main(): Promise<void> {
     } catch {
       // not a git repo or no remote, try next
     }
+  }
+  if (!repo && !filePath && state.lastRepo) {
+    repo = state.lastRepo;
+  }
+
+  // Persist repo even when rate-limited so the next heartbeat can use it
+  if (repo !== state.lastRepo) {
+    writeState(statePath, { ...state, lastRepo: repo });
+  }
+
+  // ── Rate limiting (skip if language just changed or was missing) ───
+  const languageChanged = language && language !== state.lastLanguage;
+  if (hook_event_name !== 'Stop' && !languageChanged && state.lastHeartbeatAt) {
+    if (now - state.lastHeartbeatAt < RATE_LIMIT_MS) return;
   }
 
   // ── Config ──────────────────────────────────────────────────────────
@@ -116,7 +119,7 @@ async function main(): Promise<void> {
   }
 
   // ── Save state ─────────────────────────────────────────────────────
-  writeState(statePath, { lastHeartbeatAt: now, lastLanguage: language });
+  writeState(statePath, { lastHeartbeatAt: now, lastLanguage: language, lastRepo: repo });
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────

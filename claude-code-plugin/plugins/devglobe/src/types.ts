@@ -21,6 +21,7 @@ export type Input = {
 export type State = {
   lastHeartbeatAt?: number;
   lastLanguage?: string | null;
+  lastRepo?: string | null;
 };
 
 /** Geolocation result. */

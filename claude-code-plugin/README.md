@@ -22,6 +22,14 @@ In Claude Code, run:
 
 That's it — Claude Code fetches the plugin directly from GitHub.
 
+After installing, **restart Claude Code** so the plugin and its commands are loaded:
+
+```
+/exit
+```
+
+Then reopen Claude Code.
+
 <details>
 <summary>Alternative: install from a local clone</summary>
 
@@ -33,14 +41,18 @@ Then in Claude Code:
 
 ```
 /plugin marketplace add ./devglobe-extension
+```
+```
 /plugin install devglobe@devglobe
 ```
+
+Restart Claude Code after installing (`/exit`, then reopen).
 
 </details>
 
 ## Setup
 
-Once the plugin is installed, configure it directly from Claude Code:
+Once restarted, configure the plugin directly from Claude Code:
 
 ```
 /devglobe:setup YOUR_API_KEY

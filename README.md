@@ -157,6 +157,8 @@ In Claude Code, run:
 /plugin install devglobe@devglobe
 ```
 
+After installing, **restart Claude Code** (`/exit`, then reopen) so the plugin and its commands are loaded.
+
 ### Setup
 
 ```
