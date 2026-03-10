@@ -104,7 +104,7 @@ Two views in the side panel:
 
 ### Requirements
 
-- VS Code **1.80+**
+- VS Code **1.80+** — also works with **Cursor**, **Windsurf**, **Antigravity**, and other VS Code forks
 - **Zero external dependencies** — uses only native VS Code and Node.js APIs
 
 ---
@@ -242,7 +242,7 @@ We know that when you install an extension, you trust the developer. We take tha
 |------|------|--------|
 | Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
 | Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
-| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score calculation), but **displayed on the globe only if you enable the "Share repo" toggle** (disabled by default). |
+| Repo name | **You decide** | `owner/repo` is **only sent to the server if you enable the "Share repo" toggle** (disabled by default). When disabled, your repo name never leaves your IDE. |
 | Commit stats | **Never by the extension** | Insertions/deletions are fetched **server-side** from the GitHub API via the GitHub App. The extension never reads or sends commit data. |
 | Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
 | Coding time | Yes | Accumulated per day, per language. |
@@ -311,8 +311,8 @@ Every 30 seconds, if you've typed code in the last minute, the extension sends a
   city,                         // "Paris, France"
   language,                     // "TypeScript"
   editor,                       // "vscode", "intellij", "claude-code", etc.
-  repo,                         // "owner/repo" (always sent for score calculation, but only visible on the globe if share_repo is true)
-  share_repo,                   // true/false — controls whether the repo name is displayed on your profile
+  repo,                         // "owner/repo" (only sent if share_repo is true — never leaves the IDE otherwise)
+  share_repo,                   // true/false — when true, repo name is sent and displayed on your profile
   anonymous,                    // true/false — when true, coordinates are a random city
 }
 ```

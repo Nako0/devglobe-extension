@@ -131,7 +131,7 @@ See the [main extensions README](../README.md#-github-app--verified-commit-stats
 |------|------|--------|
 | Programming language | Yes | Detected from file extensions. Nothing else. |
 | Approximate location | Yes | Coordinates **snapped to your city center** (from a database of 152,000+ cities). |
-| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score), but **displayed on the globe only if `shareRepo` is enabled** (disabled by default). |
+| Repo name | **You decide** | `owner/repo` is **only sent to the server if `shareRepo` is enabled** (disabled by default). When disabled, your repo name never leaves your machine. |
 | Anonymous mode | **You decide** | When enabled, real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never transmitted. |
 | Coding time | Yes | Accumulated per day, per language. |
 
