@@ -45,33 +45,27 @@ Once the plugin is installed, configure it directly from Claude Code:
 
 Get your API key at [devglobe.xyz](https://devglobe.xyz) — sign in, then open your **profile settings**.
 
-This command saves your key to `~/.devglobe/api_key` and creates default settings in `~/.devglobe/config.json`.
+This command saves your key to `~/.devglobe/api_key` and creates default settings in `~/.devglobe/config.json` (anonymousMode on, shareRepo off).
 
 > If no API key is provided, the command shows an error with instructions.
 
-You can also enable settings during setup:
+### Settings
 
 ```
-/devglobe:setup YOUR_API_KEY --share-repo --anonymous
+/devglobe:anonymous true          # hide your exact location (default)
+/devglobe:anonymous false         # show your real city on the globe
+/devglobe:share-repo true         # display your repo name on the globe
+/devglobe:share-repo false        # hide your repo name (default)
 ```
 
-### Toggle settings
-
-After the initial setup, toggle settings anytime without re-entering your API key:
-
-```
-/devglobe:setup --share-repo       # toggle repo sharing on/off
-/devglobe:setup --anonymous        # toggle anonymous mode on/off
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--share-repo` | off | Display your current repo on your DevGlobe profile |
-| `--anonymous` | off | Hide your exact location — your marker is placed on a random city in your country (from a database of 152,000+ cities worldwide) |
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `anonymousMode` | `true` | Your marker is placed on a random city in your country (from 152,000+ cities). Your real location is never sent. |
+| `shareRepo` | `false` | Display your current repo on your DevGlobe profile |
 
 Settings are stored in `~/.devglobe/config.json` and can also be edited manually.
 
-### Set a status message
+### Status message
 
 Display a custom status message on your DevGlobe profile:
 
@@ -111,9 +105,8 @@ Your coding session then appears live on the [DevGlobe map](https://devglobe.xyz
 | Command | Description |
 |---------|-------------|
 | `/devglobe:setup YOUR_API_KEY` | Configure the plugin with your API key |
-| `/devglobe:setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
-| `/devglobe:setup --share-repo` | Toggle repo sharing on/off |
-| `/devglobe:setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe:anonymous true/false` | Enable or disable anonymous mode |
+| `/devglobe:share-repo true/false` | Enable or disable repo sharing |
 | `/devglobe:status MESSAGE` | Set a status message on your DevGlobe profile |
 
 ## GitHub App — Verified commit stats
@@ -128,8 +121,8 @@ See the [main extensions README](../README.md#-github-app--verified-commit-stats
 |------|------|--------|
 | Programming language | Yes | Detected from file extensions. Nothing else. |
 | Approximate location | Yes | Coordinates **snapped to your city center** (from a database of 152,000+ cities). |
-| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score), but **displayed on the globe only if `shareRepo` is enabled** (disabled by default). |
-| Anonymous mode | **You decide** | When enabled, real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never transmitted. |
+| Repo name | **Only if enabled** | `owner/repo` is sent only when `shareRepo` is enabled (`/devglobe:share-repo true`). Disabled by default — nothing is sent. |
+| Anonymous mode | **On by default** | When enabled, real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never transmitted. Disable with `/devglobe:anonymous false`. |
 | Coding time | Yes | Accumulated per day, per language. |
 
 The plugin **never** reads your source code, file contents, file names, keystrokes, commit messages, environment variables, or credentials.

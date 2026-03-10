@@ -171,18 +171,17 @@ This saves your key and creates default settings in `~/.devglobe/`.
 | **Live heartbeat** | Hooks into Claude Code events. Sends a heartbeat at most once per minute. |
 | **Language detection** | Detects the language from file extensions being edited. |
 | **Git integration** | Detects your repo from the git remote. |
-| **Anonymous mode** | Hide your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Set `"anonymousMode": true` in `~/.devglobe/config.json`. |
+| **Anonymous mode** | **Enabled by default.** Hides your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Disable with `/devglobe:anonymous false`. |
 | **Status message** | Set a custom status on your profile: `/devglobe:status Your message here` |
-| **Repo sharing** | Set `"shareRepo": true` in `~/.devglobe/config.json` to display your repo on the globe. |
+| **Repo sharing** | Display your repo name on the globe: `/devglobe:share-repo true` (disabled by default). |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
 | `/devglobe:setup YOUR_API_KEY` | Configure the plugin with your API key |
-| `/devglobe:setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
-| `/devglobe:setup --share-repo` | Toggle repo sharing on/off |
-| `/devglobe:setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe:anonymous true/false` | Enable or disable anonymous mode |
+| `/devglobe:share-repo true/false` | Enable or disable repo sharing |
 | `/devglobe:status MESSAGE` | Set a status message on your DevGlobe profile |
 
 Settings are stored in `~/.devglobe/config.json` and can also be edited manually.
@@ -239,7 +238,7 @@ We know that when you install an extension, you trust the developer. We take tha
 |------|------|--------|
 | Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
 | Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
-| Repo name | Always sent | `owner/repo` is always sent to the server (used for featured project score calculation), but **displayed on the globe only if you enable the "Share repo" toggle** (disabled by default). |
+| Repo name | **Only if enabled** | `owner/repo` is sent only when you enable the "Share repo" toggle (disabled by default). If disabled, no repo information is transmitted. |
 | Commit stats | **Never by the extension** | Insertions/deletions are fetched **server-side** from the GitHub API via the GitHub App. The extension never reads or sends commit data. |
 | Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
 | Coding time | Yes | Accumulated per day, per language. |
@@ -308,8 +307,8 @@ Every 30 seconds, if you've typed code in the last minute, the extension sends a
   city,                         // "Paris, France"
   language,                     // "TypeScript"
   editor,                       // "vscode", "intellij", "claude-code", etc.
-  repo,                         // "owner/repo" (always sent for score calculation, but only visible on the globe if share_repo is true)
-  share_repo,                   // true/false — controls whether the repo name is displayed on your profile
+  repo,                         // "owner/repo" (sent only if share_repo is true)
+  share_repo,                   // true/false — controls whether repo name is sent and displayed
   anonymous,                    // true/false — when true, coordinates are a random city
 }
 ```
@@ -385,8 +384,10 @@ claude-code-plugin/
 │   ├── hooks/
 │   │   └── hooks.json     # Claude Code hook definitions
 │   ├── skills/
-│   │   ├── setup/SKILL.md # /devglobe:setup slash command
-│   │   └── status/SKILL.md# /devglobe:status slash command
+│   │   ├── setup/SKILL.md      # /devglobe:setup
+│   │   ├── anonymous/SKILL.md  # /devglobe:anonymous
+│   │   ├── share-repo/SKILL.md # /devglobe:share-repo
+│   │   └── status/SKILL.md     # /devglobe:status
 │   ├── scripts/
 │   │   └── run            # Heartbeat launcher
 │   └── package.json

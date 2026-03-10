@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# DevGlobe — update status message
+# Usage: echo '{"api_key":"...","message":"..."}' | ./update-status
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
+ENTRY="$PLUGIN_ROOT/dist/update-status.js"
+
+if [ ! -f "$ENTRY" ]; then
+  echo '{"error":"update-status.js not found"}' >&2
+  exit 1
+fi
+
+if [ -n "${NODE_BIN:-}" ] && [ -x "$NODE_BIN" ]; then
+  NODE="$NODE_BIN"
+elif command -v node >/dev/null 2>&1; then
+  NODE="node"
+elif [ -x "/usr/local/bin/node" ]; then
+  NODE="/usr/local/bin/node"
+elif [ -x "$HOME/.nvm/current/bin/node" ]; then
+  NODE="$HOME/.nvm/current/bin/node"
+elif [ -x "$HOME/.local/bin/node" ]; then
+  NODE="$HOME/.local/bin/node"
+else
+  for p in /run/current-system/sw/bin/node /opt/homebrew/bin/node; do
+    if [ -x "$p" ]; then
+      NODE="$p"
+      break
+    fi
+  done
+fi
+
+if [ -z "${NODE:-}" ]; then
+  echo '{"error":"node not found"}' >&2
+  exit 1
+fi
+
+exec "$NODE" "$ENTRY"

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { request as httpsRequest } from 'https';
 import { request as httpRequest } from 'http';
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
   const body = JSON.stringify({
     p_key: apiKey,
     ...(language && { p_lang: language }),
-    ...(repo && { p_repo: repo }),
+    ...(config.shareRepo === true && repo && { p_repo: repo }),
     p_share_repo: config.shareRepo === true,
     p_editor: 'claude-code',
     p_anonymous: config.anonymousMode !== false,
