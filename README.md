@@ -276,13 +276,13 @@ The location is **cached for 1 hour** — the extension does not call the geoloc
 
 ### API key storage
 
-Your DevGlobe API key is **never stored in plain text**.
+Your DevGlobe API key is stored securely using each platform's best available method.
 
 | IDE | Storage method |
 |-----|----------------|
 | VS Code | **SecretStorage** — your OS system keychain (macOS Keychain, Windows Credential Manager, Linux libsecret) |
 | JetBrains | **PasswordSafe** — the IDE's native credential manager, backed by the OS keychain |
-| Claude Code | **Environment variable** (`DEVGLOBE_API_KEY`) or **config file** (`~/.devglobe/api_key`) |
+| Claude Code | **Environment variable** (`DEVGLOBE_API_KEY`) or **config file** (`~/.devglobe/api_key`) — Claude Code has no keychain API, so the key is stored in a local config file readable only by your user |
 
 The VS Code extension automatically migrates old keys that were stored in plain text in `settings.json` to the secure keychain.
 

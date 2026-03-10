@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { request as httpsRequest } from 'https';
-import { request as httpRequest } from 'http';
 import { homedir, tmpdir } from 'os';
 import { join, dirname } from 'path';
 import { langFromPath } from './lang';
@@ -336,9 +335,9 @@ async function fetchGeo(
 }
 
 function httpGet(url: string, redirects = 3): Promise<string> {
+  if (!url.startsWith('https://')) return Promise.reject(new Error('HTTPS only'));
   return new Promise((resolve, reject) => {
-    const mod = url.startsWith('https') ? httpsRequest : httpRequest;
-    const req = mod(url, { method: 'GET', timeout: FETCH_TIMEOUT }, (res) => {
+    const req = httpsRequest(url, { method: 'GET', timeout: FETCH_TIMEOUT }, (res) => {
       if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirects > 0) {
         resolve(httpGet(res.headers.location, redirects - 1));
         return;
@@ -367,10 +366,10 @@ function httpPost(
   body: string,
   headers: Record<string, string>,
 ): Promise<string> {
+  const u = new URL(url);
+  if (u.protocol !== 'https:') return Promise.reject(new Error('HTTPS only'));
   return new Promise((resolve, reject) => {
-    const u = new URL(url);
-    const mod = u.protocol === 'https:' ? httpsRequest : httpRequest;
-    const req = mod(
+    const req = httpsRequest(
       {
         hostname: u.hostname,
         port: u.port,
