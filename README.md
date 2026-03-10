@@ -462,7 +462,7 @@ Contributions are welcome — fixes, new features, documentation.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT
 
 ---
 
