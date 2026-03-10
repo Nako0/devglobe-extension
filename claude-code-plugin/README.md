@@ -40,7 +40,7 @@ Then in Claude Code:
 Once the plugin is installed, configure it directly from Claude Code:
 
 ```
-/devglobe-setup YOUR_API_KEY
+/devglobe:setup YOUR_API_KEY
 ```
 
 Get your API key at [devglobe.xyz](https://devglobe.xyz) — sign in, then open your **profile settings**.
@@ -52,7 +52,7 @@ This command saves your key to `~/.devglobe/api_key` and creates default setting
 You can also enable settings during setup:
 
 ```
-/devglobe-setup YOUR_API_KEY --share-repo --anonymous
+/devglobe:setup YOUR_API_KEY --share-repo --anonymous
 ```
 
 ### Toggle settings
@@ -60,8 +60,8 @@ You can also enable settings during setup:
 After the initial setup, toggle settings anytime without re-entering your API key:
 
 ```
-/devglobe-setup --share-repo       # toggle repo sharing on/off
-/devglobe-setup --anonymous        # toggle anonymous mode on/off
+/devglobe:setup --share-repo       # toggle repo sharing on/off
+/devglobe:setup --anonymous        # toggle anonymous mode on/off
 ```
 
 | Option | Default | Description |
@@ -76,14 +76,14 @@ Settings are stored in `~/.devglobe/config.json` and can also be edited manually
 Display a custom status message on your DevGlobe profile:
 
 ```
-/devglobe-status Shipping features with Claude
+/devglobe:status Shipping features with Claude
 ```
 
-Max 100 characters. Requires a valid API key — run `/devglobe-setup` first.
+Max 100 characters. Requires a valid API key — run `/devglobe:setup` first.
 
 ### Alternative API key setup
 
-If you prefer not to use `/devglobe-setup`, you can set your key manually:
+If you prefer not to use `/devglobe:setup`, you can set your key manually:
 
 **Option A** — Environment variable (add to `~/.zshrc` or `~/.bashrc`):
 ```bash
@@ -110,11 +110,11 @@ Your coding session then appears live on the [DevGlobe map](https://devglobe.xyz
 
 | Command | Description |
 |---------|-------------|
-| `/devglobe-setup YOUR_API_KEY` | Configure the plugin with your API key |
-| `/devglobe-setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
-| `/devglobe-setup --share-repo` | Toggle repo sharing on/off |
-| `/devglobe-setup --anonymous` | Toggle anonymous mode on/off |
-| `/devglobe-status MESSAGE` | Set a status message on your DevGlobe profile |
+| `/devglobe:setup YOUR_API_KEY` | Configure the plugin with your API key |
+| `/devglobe:setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
+| `/devglobe:setup --share-repo` | Toggle repo sharing on/off |
+| `/devglobe:setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe:status MESSAGE` | Set a status message on your DevGlobe profile |
 
 ## GitHub App — Verified commit stats
 

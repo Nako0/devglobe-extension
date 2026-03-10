@@ -4,8 +4,8 @@
   "description": "DevGlobe plugin for Claude Code - appear active on the globe while coding with AI",
   "private": true,
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js && esbuild src/commands.ts --bundle --platform=node --target=node18 --outfile=dist/commands.js",
-    "watch": "esbuild src/index.ts src/commands.ts --bundle --platform=node --target=node18 --outdir=dist --watch"
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js",
+    "watch": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js --watch"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",

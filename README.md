@@ -63,7 +63,7 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 1. **Sign in** on [devglobe.xyz](https://devglobe.xyz) with GitHub
 2. **Copy your API key** from the site settings
 3. **Install the extension** in VS Code, your JetBrains IDE, or Claude Code
-4. **Paste the key** in the extension sidebar (or run `/devglobe-setup YOUR_API_KEY` for Claude Code)
+4. **Paste the key** in the extension sidebar (or run `/devglobe:setup YOUR_API_KEY` for Claude Code)
 5. **You're online** — your marker appears on the globe
 
 The extension sends a **heartbeat every 30 seconds** as long as you're actively coding. If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
@@ -157,7 +157,7 @@ In Claude Code, run:
 ### Setup
 
 ```
-/devglobe-setup YOUR_API_KEY
+/devglobe:setup YOUR_API_KEY
 ```
 
 Get your API key at [devglobe.xyz](https://devglobe.xyz) — sign in, then open your **profile settings**.
@@ -172,18 +172,18 @@ This saves your key and creates default settings in `~/.devglobe/`.
 | **Language detection** | Detects the language from file extensions being edited. |
 | **Git integration** | Detects your repo from the git remote. |
 | **Anonymous mode** | Hide your exact location — placed on a random city in your country (from a database of 152,000+ cities worldwide). Set `"anonymousMode": true` in `~/.devglobe/config.json`. |
-| **Status message** | Set a custom status on your profile: `/devglobe-status Your message here` |
+| **Status message** | Set a custom status on your profile: `/devglobe:status Your message here` |
 | **Repo sharing** | Set `"shareRepo": true` in `~/.devglobe/config.json` to display your repo on the globe. |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/devglobe-setup YOUR_API_KEY` | Configure the plugin with your API key |
-| `/devglobe-setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
-| `/devglobe-setup --share-repo` | Toggle repo sharing on/off |
-| `/devglobe-setup --anonymous` | Toggle anonymous mode on/off |
-| `/devglobe-status MESSAGE` | Set a status message on your DevGlobe profile |
+| `/devglobe:setup YOUR_API_KEY` | Configure the plugin with your API key |
+| `/devglobe:setup YOUR_API_KEY --share-repo --anonymous` | Setup with settings enabled |
+| `/devglobe:setup --share-repo` | Toggle repo sharing on/off |
+| `/devglobe:setup --anonymous` | Toggle anonymous mode on/off |
+| `/devglobe:status MESSAGE` | Set a status message on your DevGlobe profile |
 
 Settings are stored in `~/.devglobe/config.json` and can also be edited manually.
 
@@ -381,13 +381,14 @@ claude-code-plugin/
 ├── plugins/devglobe/
 │   ├── src/
 │   │   ├── index.ts       # Heartbeat logic (PostToolUse, UserPromptSubmit, Stop)
-│   │   ├── commands.ts    # Slash commands (/devglobe-setup, /devglobe-status)
 │   │   └── lang.ts        # File extension → language mapping
 │   ├── hooks/
 │   │   └── hooks.json     # Claude Code hook definitions
+│   ├── skills/
+│   │   ├── setup/SKILL.md # /devglobe:setup slash command
+│   │   └── status/SKILL.md# /devglobe:status slash command
 │   ├── scripts/
-│   │   ├── run            # Heartbeat launcher
-│   │   └── commands       # Command handler launcher
+│   │   └── run            # Heartbeat launcher
 │   └── package.json
 └── .claude-plugin/
     └── marketplace.json

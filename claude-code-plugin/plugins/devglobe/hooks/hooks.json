@@ -14,15 +14,6 @@
     ],
     "UserPromptSubmit": [
       {
-        "matcher": "/devglobe-",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/commands"
-          }
-        ]
-      },
-      {
         "matcher": "",
         "hooks": [
           {
