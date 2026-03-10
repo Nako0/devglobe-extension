@@ -118,7 +118,6 @@ export class Tracker implements vscode.Disposable {
         this.ensureStatusBar();
         resetAnonymousLocation();
 
-        const config = vscode.workspace.getConfiguration('devglobe');
         this.setStatusBarText('$(clock) 0m');
         this.statusBarItem?.show();
         this.consecutiveNetErrors = 0;
@@ -128,9 +127,6 @@ export class Tracker implements vscode.Disposable {
             connected: true,
             tracking: true,
             offline: false,
-            shareRepo: config.get('shareRepo', false),
-            anonymousMode: config.get('anonymousMode', false),
-            statusMessage: config.get('statusMessage', ''),
         };
         this.pushState();
         this.lastActivity = Date.now();

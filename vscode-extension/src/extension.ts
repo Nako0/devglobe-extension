@@ -191,6 +191,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const trackingEnabled = savedConfig.get<boolean>('trackingEnabled', true);
 
     if (apiKey && trackingEnabled) {
+        tracker.restoreConnected(apiKey, savedConfig);
         tracker.start(apiKey);
     } else if (apiKey) {
         // Key exists but tracking was explicitly paused — show dashboard without tracking

@@ -85,18 +85,19 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     log.debug('Sending heartbeat:', JSON.stringify(logBody, null, 2));
 
     let res: Response;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         res = await fetch(`${SUPABASE_URL}/functions/v1/heartbeat`, {
             method: 'POST',
             headers: HEADERS,
             body: JSON.stringify(body),
             signal: controller.signal,
         });
-        clearTimeout(timer);
     } catch (e) {
         throw new NetworkError((e as Error).message);
+    } finally {
+        clearTimeout(timer);
     }
 
     if (!res.ok) {

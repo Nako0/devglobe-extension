@@ -55,20 +55,16 @@ class DevGlobeTracker : Disposable {
     }
 
     fun start(apiKey: String) {
-        if (!started.compareAndSet(false, true)) return
+        started.set(true)
         clearTimer()
         currentApiKey = apiKey
         consecutiveNetErrors = 0
 
-        val settings = DevGlobeSettings.getInstance()
         GeoService.resetAnonymousLocation()
         state = state.copy(
             connected = true,
             tracking = true,
             offline = false,
-            shareRepo = settings.state.shareRepo,
-            anonymousMode = settings.state.anonymousMode,
-            statusMessage = settings.state.statusMessage,
         )
         pushState()
         lastActivity = System.currentTimeMillis()

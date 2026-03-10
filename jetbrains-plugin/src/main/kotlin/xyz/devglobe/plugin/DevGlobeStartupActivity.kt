@@ -21,6 +21,7 @@ class DevGlobeStartupActivity : StartupActivity.DumbAware {
 
         // start() is guarded by an AtomicBoolean — safe against concurrent project opens
         if (settings.state.trackingEnabled) {
+            tracker.restoreConnected(apiKey)
             tracker.start(apiKey)
         } else {
             tracker.restoreConnected(apiKey)
