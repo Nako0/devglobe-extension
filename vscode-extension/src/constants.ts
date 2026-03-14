@@ -4,6 +4,9 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 /** How often a heartbeat is sent while the user is active. */
 export const HEARTBEAT_INTERVAL = 30 * 1000; // 30 seconds
 
+/** Extended heartbeat interval when nothing has changed since the last beat. */
+export const HEARTBEAT_INTERVAL_IDLE = 60 * 1000; // 60 seconds
+
 /** Stop sending heartbeats if no keystroke was detected within this window. */
 export const ACTIVITY_TIMEOUT = 1 * 60 * 1000; // 1 minute
 
