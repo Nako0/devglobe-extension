@@ -5,6 +5,17 @@ import { getActiveLanguage } from './language';
 import { detectRepo } from './git';
 import { log } from './logger';
 
+/** Minimum time between heartbeat requests (prevents runaway loops). */
+const MIN_HEARTBEAT_GAP = 10_000; // 10 seconds
+let lastHeartbeatSent = 0;
+
+/** Maximum payload size in bytes (prevents oversized requests). */
+const MAX_PAYLOAD_BYTES = 2048;
+
+/** Minimum time between status update requests. */
+const MIN_STATUS_GAP = 5_000; // 5 seconds
+let lastStatusSent = 0;
+
 /** Maps `vscode.env.appName` to a short editor ID sent in heartbeats. */
 function detectEditor(): string {
     const name = vscode.env.appName.toLowerCase();
@@ -53,6 +64,12 @@ const HEADERS = {
  * - Returns coding-time and active language on success.
  */
 export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: number; language: string | null }> {
+    const now = Date.now();
+    if (now - lastHeartbeatSent < MIN_HEARTBEAT_GAP) {
+        log.debug('Heartbeat throttled (too soon since last send)');
+        return { todaySeconds: 0, language: null };
+    }
+
     const config = vscode.workspace.getConfiguration('devglobe');
     const anonymous = config.get<boolean>('anonymousMode', false);
 
@@ -81,6 +98,15 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
         body.p_repo = repo;
     }
 
+    // Guard against oversized payloads
+    const payload = JSON.stringify(body);
+    if (Buffer.byteLength(payload, 'utf8') > MAX_PAYLOAD_BYTES) {
+        log.warn('Heartbeat payload exceeds size limit, truncating repo');
+        if (body.p_repo) {
+            body.p_repo = String(body.p_repo).slice(0, 100);
+        }
+    }
+
     // Log without the API key for security
     const { p_key: _omit, ...logBody } = body;
     log.debug('Sending heartbeat:', JSON.stringify(logBody, null, 2));
@@ -106,6 +132,8 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
         throw new ApiError(res.status, text);
     }
 
+    lastHeartbeatSent = Date.now();
+
     const data = await res.json() as { today_seconds?: number };
     return { todaySeconds: data.today_seconds ?? 0, language: activeLang };
 }
@@ -115,6 +143,11 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
  * Returns true on success, false otherwise.
  */
 export async function updateStatusMessage(apiKey: string, message: string): Promise<boolean> {
+    if (Date.now() - lastStatusSent < MIN_STATUS_GAP) {
+        log.debug('Status update throttled');
+        return false;
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
@@ -124,6 +157,9 @@ export async function updateStatusMessage(apiKey: string, message: string): Prom
             body: JSON.stringify({ p_key: apiKey, p_message: message }),
             signal: controller.signal,
         });
+        if (res.ok) {
+            lastStatusSent = Date.now();
+        }
         return res.ok;
     } catch {
         return false;
