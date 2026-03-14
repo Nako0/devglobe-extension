@@ -6,48 +6,51 @@
 </p>
 
 <p align="center">
-  <a href="#vs-code">VS Code</a> &nbsp;·&nbsp;
-  <a href="#jetbrains">JetBrains</a> &nbsp;·&nbsp;
-  <a href="#claude-code">Claude Code</a> &nbsp;·&nbsp;
-  <a href="#privacy--security">Privacy</a> &nbsp;·&nbsp;
-  <a href="#how-it-works-technically">Technical</a>
+  <a href="https://github.com/Nako0/devglobe-extension/stargazers"><img src="https://img.shields.io/github/stars/Nako0/devglobe-extension?style=flat-square&color=yellow" alt="Stars" /></a>&nbsp;
+  <a href="https://marketplace.visualstudio.com/items?itemName=devglobe.devglobe"><img src="https://img.shields.io/visual-studio-marketplace/i/devglobe.devglobe?style=flat-square&label=VS%20Code%20installs&color=007ACC" alt="VS Code Installs" /></a>&nbsp;
+  <a href="https://plugins.jetbrains.com/plugin/30572-devglobe"><img src="https://img.shields.io/jetbrains/plugin/d/xyz.devglobe.plugin?style=flat-square&label=JetBrains%20downloads&color=FE315D" alt="JetBrains Downloads" /></a>
 </p>
 
----
+<p align="center">
+  <a href="#vs-code">VS Code</a> &nbsp;·&nbsp;
+  <a href="#jetbrains">JetBrains</a> &nbsp;·&nbsp;
+  <a href="#claude-code">Claude Code</a>
+</p>
 
-> **Open source & transparent** — These extensions are 100% open source. No code is read, no sensitive data is collected. You can audit every line of this repository. We explain in detail everything that is sent (and what is not) in the [Privacy & Security](#privacy--security) section.
+<p align="center">
+  <a href="https://devglobe.xyz">
+    <img src="assets/demo.gif" alt="DevGlobe — developers coding live on a 3D globe" width="800" />
+  </a>
+</p>
 
 ---
 
 ## Why DevGlobe?
 
-DevGlobe is a free and open source platform that displays active developers on an interactive 3D globe. When you code, a marker lights up at your position on the map. Other developers see you in real time.
+DevGlobe is a **free, open-source** platform that lights up a marker on a 3D globe every time you code. Other developers see you in real time.
 
-**What it brings you:**
-
-- **Visibility** — Your GitHub profile, your X account, your projects and your links are accessible to all developers on the globe. It's a showcase for what you're building. Your repo names are only visible if you choose so.
-
-- **Networking** — You see who's coding right now and in which language. Click a marker to discover a developer, their projects, their social links. It's a simple way to meet people who share your tech stack.
-
-- **Motivation** — A weekly leaderboard ranks all developers by coding time. Your streak (consecutive days of coding) is visible on your profile. It's a small daily motivation boost.
-
-- **Project showcase** — You can feature up to 10 projects on the globe. The most active projects (coding time + Git activity) are displayed in a carousel visible to all site visitors. If you have a startup, you can link your [TrustMRR](https://trustmrr.com) data to publicly display your MRR, growth and metrics.
+<table>
+<tr>
+<td width="25%" align="center"><h3>Visibility</h3><p>Your GitHub, X, projects and links — visible to every developer on the globe. A showcase for what you're building.</p></td>
+<td width="25%" align="center"><h3>Networking</h3><p>See who's coding right now and in which language. Click a marker to discover a developer and their projects.</p></td>
+<td width="25%" align="center"><h3>Motivation</h3><p>Weekly leaderboard by coding time. Your streak (consecutive coding days) is visible on your profile.</p></td>
+<td width="25%" align="center"><h3>Projects</h3><p>Feature up to 10 projects. The most active ones appear in a carousel visible to all visitors. Link your <a href="https://trustmrr.com">TrustMRR</a> to display your MRR.</p></td>
+</tr>
+</table>
 
 ---
 
-## The globe at a glance
+## Quick Start
 
-On [devglobe.xyz](https://devglobe.xyz), you'll find:
+```
+1. Sign in on devglobe.xyz with GitHub
+2. Copy your API key from the profile settings
+3. Install the extension in your IDE and paste the key
+```
 
-- **A 3D globe** with active developers in real time (colored markers or GitHub avatars)
-- **Clickable profiles** — active language, session time, bio, tech stack, social links (GitHub, X, Reddit), and repo if the developer chose to share it
-- **A weekly leaderboard** — top developers by coding time, updated live
-- **A featured projects carousel** — the most active projects, ranked by a score: `0.5 × coding time on the repo + (insertions − deletions)` over the last 24 hours
-- **An activity feed** — who just connected, who left
-- **A search** — find a developer by name or GitHub username
-- **Detailed stats** — today's time, streak, language breakdown over 30 days, per-repo activity over 24h (if the developer chose to share their git activity)
+**That's it — your marker appears on the globe.**
 
-**Account deletion** — If you delete your account, all your data is erased. No information is kept.
+The extension sends a heartbeat every 30 seconds while you code. Stop typing for 1 minute and heartbeats pause. After 10 minutes of inactivity, you disappear from the globe.
 
 ---
 
@@ -60,25 +63,19 @@ On [devglobe.xyz](https://devglobe.xyz), you'll find:
 └──────────────┘                       └──────────────┘                  └──────────────┘
 ```
 
-1. **Sign in** on [devglobe.xyz](https://devglobe.xyz) with GitHub
-2. **Copy your API key** from the site settings
-3. **Install the extension** in VS Code, your JetBrains IDE, or Claude Code
-4. **Paste the key** in the extension sidebar (or run `/devglobe:setup YOUR_API_KEY` for Claude Code)
-5. **You're online** — your marker appears on the globe
-
-The extension sends a **heartbeat every 30 seconds** as long as you're actively coding (every 60 seconds for Claude Code). If you stop typing for more than 1 minute, heartbeats pause automatically. **After 10 minutes of inactivity, you disappear from the globe** and are considered inactive.
-
 ---
 
-## VS Code
+## Supported IDEs
 
-### Installation
+### VS Code
+
+#### Installation
 
 1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=devglobe.devglobe)
 2. Open the **DevGlobe** sidebar (globe icon in the activity bar)
 3. Paste your API key → **Connect**
 
-### Features
+#### Features
 
 | Feature | Description |
 |---------|-------------|
@@ -91,38 +88,36 @@ The extension sends a **heartbeat every 30 seconds** as long as you're actively 
 | **Offline recovery** | Detects connection loss and automatically resumes when the network is back. |
 | **Status bar** | Displays your coding time for today (e.g. `2h 15m`) in the VS Code status bar. |
 
-### Sidebar
+#### Sidebar
 
 Two views in the side panel:
 
 - **Login** — masked API key field + link to get your key on devglobe.xyz
 - **Dashboard** — live coding time, active language, status message, repo sharing toggle, start/stop buttons, logout
 
-### Command
+#### Command
 
 `DevGlobe: Set Status Message` — accessible from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 
-### Requirements
+#### Requirements
 
 - VS Code **1.80+** — also works with **Cursor**, **Windsurf**, **Antigravity**, and other VS Code forks
 - **Zero external dependencies** — uses only native VS Code and Node.js APIs
 
 ---
 
-## JetBrains
+### JetBrains
 
 Compatible with **all JetBrains IDEs**: IntelliJ IDEA, WebStorm, PyCharm, GoLand, Rider, PhpStorm, CLion, RubyMine, DataGrip, Android Studio.
 
-### Installation
+#### Installation
 
-1. Install from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/devglobe) or download the `.zip` from the [Releases](https://github.com/devglobe/devglobe-extensions/releases)
+1. Install from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/30572-devglobe) or download the `.zip` from the [Releases](https://github.com/Nako0/devglobe-extension/releases)
 2. For manual installation: **Settings → Plugins → ⚙️ → Install Plugin from Disk**
 3. Open the **DevGlobe** tool window (right sidebar)
 4. Paste your API key → **Connect**
 
-### Features
-
-Same features as the VS Code extension, adapted for the JetBrains platform:
+#### Features
 
 | Feature | Description |
 |---------|-------------|
@@ -136,16 +131,16 @@ Same features as the VS Code extension, adapted for the JetBrains platform:
 | **Status bar** | Displays `⏱ 2h 15m` in the IDE status bar. |
 | **Notifications** | Native IDE notifications for every action (connection, tracking, status, errors). |
 
-### Compatibility
+#### Compatibility
 
 - **IDE builds**: 233 — 253.* (2023.3 to 2025.3)
 - **Java**: 17+
 
 ---
 
-## Claude Code
+### Claude Code
 
-### Installation
+#### Installation
 
 In Claude Code, run:
 
@@ -159,7 +154,7 @@ In Claude Code, run:
 
 After installing, **restart Claude Code** (`/exit`, then reopen) so the plugin and its commands are loaded.
 
-### Setup
+#### Setup
 
 ```
 /devglobe:setup YOUR_API_KEY
@@ -169,7 +164,7 @@ Get your API key at [devglobe.xyz](https://devglobe.xyz) — sign in, then open 
 
 This saves your key and creates default settings in `~/.devglobe/`.
 
-### Features
+#### Features
 
 | Feature | Description |
 |---------|-------------|
@@ -180,7 +175,7 @@ This saves your key and creates default settings in `~/.devglobe/`.
 | **Status message** | Set a custom status on your profile: `/devglobe:status Your message here` |
 | **Repo sharing** | Display your repo name on the globe: `/devglobe:share-repo true` (disabled by default). |
 
-### Commands
+#### Commands
 
 | Command | Description |
 |---------|-------------|
@@ -193,217 +188,45 @@ Settings are stored in `~/.devglobe/config.json` and can also be edited manually
 
 ---
 
-## GitHub App — Verified commit stats
+## The Globe
 
-DevGlobe uses a [GitHub App](https://github.com/apps/devglobeapp) to display **verified** commit statistics (insertions & deletions per week) on featured projects. This replaces the old client-side stats collection, which could be falsified.
+On [devglobe.xyz](https://devglobe.xyz), you'll find:
 
-### How it works
+- **A 3D globe** with active developers in real time (colored markers or GitHub avatars)
+- **Clickable profiles** — active language, session time, bio, tech stack, social links
+- **A weekly leaderboard** — top developers by coding time, updated live
+- **A featured projects carousel** — most active projects, ranked by coding time + Git activity
+- **An activity feed** — who just connected, who left
+- **Search** — find a developer by name or GitHub username
+- **Detailed stats** — today's time, streak, language breakdown (30 days), per-repo activity (24h)
 
-1. On your DevGlobe profile, click **"Connect repo"** in the Projects section
-2. You're redirected to GitHub to install the [DevGlobe App](https://github.com/apps/devglobeapp) on the repos you choose
-3. A server-side job syncs commit stats from the GitHub API **every 15 minutes**
-4. Stats are displayed on your featured projects in the carousel and on your profile
-
-### What the GitHub App can access
-
-The app requests **Metadata: Read-only** — the most minimal GitHub permission available. It uses the `GET /repos/{owner/repo}/stats/contributors` endpoint to retrieve aggregated contribution statistics (weekly insertions and deletions per contributor).
-
-| Data | Access |
-|------|--------|
-| Aggregated commit statistics (insertions/deletions per week) | **Read** |
-| Repo metadata (name, description, stars, forks) | **Read** |
-| Your source code | **No access** |
-| Your file contents or file names | **No access** |
-| Your commit messages | **No access** |
-| Your issues and pull requests | **No access** |
-| Your repo settings | **No access** |
-| Your actions/workflows | **No access** |
-| Your collaborators list | **No access** |
-
-### What happens if you don't install it
-
-- You can still use DevGlobe normally (heartbeats, coding time, leaderboard)
-- You can still add projects to your profile
-- You just **can't feature a project** in the carousel without connecting its repo
-- No commit stats will be displayed on your profile
-
-### How to uninstall
-
-Go to [github.com/settings/installations](https://github.com/settings/installations), find "DevGlobe", and click **Uninstall**. Your coding time and profile data on DevGlobe remain intact.
+**Account deletion** — delete your account and all your data is permanently erased.
 
 ---
 
 ## Privacy & Security
 
-We know that when you install an extension, you trust the developer. We take that seriously. Here's exactly what the extension does — no gray area.
+> **100% open source. No code is read. No sensitive data collected.** Audit every line yourself.
 
-### What the extension sends
+**What we send:** programming language, city-level location (snapped to city center from 152k+ cities), coding time, your status message.
 
-| Data | Sent | Detail |
-|------|------|--------|
-| Programming language | Yes | The language name of your active tab (e.g. "TypeScript"). Nothing else. |
-| Approximate location | Yes | City + coordinates **snapped to your city center** (from a database of 152,000+ cities). You appear as an area on the globe, not an address. |
-| Repo name | **You decide** | `owner/repo` is **only sent to the server if you enable the "Share repo" toggle** (disabled by default). When disabled, your repo name never leaves your IDE. |
-| Commit stats | **Never by the extension** | Insertions/deletions are fetched **server-side** from the GitHub API via the GitHub App. The extension never reads or sends commit data. |
-| Anonymous mode | **You decide** | When enabled, your real coordinates are replaced with a random city in your country (from a database of 152,000+ cities worldwide). Your actual location is never sent to DevGlobe. |
-| Coding time | Yes | Accumulated per day, per language. |
-| Status message | Yes | Only what you write yourself. |
+**What you control:** repo name (only shared if you enable it), anonymous mode (random city in your country).
 
-### What the extension does NOT send
+**What we NEVER touch:** source code, file contents, file names, folder paths, keystrokes, commit messages, Git branches, environment variables, SSH keys. Your IP is used once for geolocation then discarded — never sent to DevGlobe.
 
-| Data | Sent |
-|------|------|
-| Your source code | **Never** |
-| Your file contents | **Never** |
-| Your file names | **Never** |
-| Your folder paths | **Never** |
-| Your keystrokes | **Never** |
-| Your commit messages | **Never** |
-| Your Git branches | **Never** |
-| Your IP address | **Never stored** — used only to determine city via a geolocation service, then discarded, the IP stays on your IDE |
-| Your environment variables | **Never** |
-| Your SSH keys or credentials | **Never** |
+**API keys** are stored in your OS keychain (VS Code SecretStorage, JetBrains PasswordSafe) or local config file (Claude Code).
 
-### Location: how it works exactly
+**Network:** HTTPS only (TLS 1.2+), no intermediary server, Content Security Policy on webviews, Row Level Security on the database. No telemetry.
 
-The extension determines your city from your IP address via an external geolocation service (freeipapi.com, with fallback to ipapi.co). Both are free public services, no API key required.
-
-**Coordinates are snapped to your city center** using a database of 152,000+ cities (GeoNames). You appear at your city's canonical center on the globe, not at your address. If the city is not found in the database, coordinates are randomly offset within a 20 km radius.
-
-The location is **cached for 1 hour** — the extension does not call the geolocation service on every heartbeat.
-
-**Your IP address is never transmitted to DevGlobe.** It is only used by the third-party geolocation service to determine your city, then discarded.
-
-### API key storage
-
-Your DevGlobe API key is stored securely using each platform's best available method.
-
-| IDE | Storage method |
-|-----|----------------|
-| VS Code | **SecretStorage** — your OS system keychain (macOS Keychain, Windows Credential Manager, Linux libsecret) |
-| JetBrains | **PasswordSafe** — the IDE's native credential manager, backed by the OS keychain |
-| Claude Code | **Environment variable** (`DEVGLOBE_API_KEY`) or **config file** (`~/.devglobe/api_key`) — Claude Code has no keychain API, so the key is stored in a local config file readable only by your user |
-
-The VS Code extension automatically migrates old keys that were stored in plain text in `settings.json` to the secure keychain.
-
-### Network security
-
-- **HTTPS only** (TLS 1.2+) — no HTTP fallback
-- Heartbeats go directly to the database — no intermediary server
-- The VS Code side panel uses a **Content Security Policy** with a cryptographic nonce to prevent script injection
-- Server-side, Row Level Security policies isolate each user's data
-
-### Open source
-
-All extensions are open source. You can read every line of code that runs on your machine. That's the purpose of this repository.
+**[Read the full Privacy & Security documentation →](PRIVACY.md)**
 
 ---
 
-## How it works technically
+## GitHub App
 
-### The heartbeat
+DevGlobe uses a [GitHub App](https://github.com/apps/devglobeapp) to display **verified** commit statistics on featured projects. The app requests **Metadata: Read-only** — the most minimal permission available. It has **no access** to your source code, file contents, commit messages, issues, or PRs.
 
-Every 30 seconds, if you've typed code in the last minute, the extension sends a heartbeat to the database. This heartbeat contains:
-
-```
-{
-  api_key,                      // your identifier (stored in the OS keychain)
-  latitude, longitude,          // snapped to city center (152k+ cities)
-  city,                         // "Paris, France"
-  language,                     // "TypeScript"
-  editor,                       // "vscode", "intellij", "claude-code", etc.
-  repo,                         // "owner/repo" (only sent if share_repo is true — never leaves the IDE otherwise)
-  share_repo,                   // true/false — when true, repo name is sent and displayed on your profile
-  anonymous,                    // true/false — when true, coordinates are a random city
-}
-```
-
-The server responds with today's total coding time. The extension updates the display in the sidebar and status bar.
-
-### Language detection
-
-- **VS Code**: reads the `languageId` of the active editor, then translates it via a table of 48+ languages (JavaScript, TypeScript, Python, Rust, Go, Kotlin, etc.)
-- **JetBrains**: uses the IDE's native `FileType` system — no manual table, automatically supports all languages your IDE supports
-- **Claude Code**: detects the language from the file extension of edited files
-
-### Git integration
-
-The extension runs `git remote get-url origin` in your active file's directory and extracts the `owner/repo` identifier from the URL (SSH or HTTPS). The result is cached for 5 minutes.
-
-**The extension never reads commits, diffs, or file contents.** Commit statistics (insertions/deletions) are fetched entirely server-side via the GitHub API using the token granted by the [GitHub App](#-github-app--verified-commit-stats). This prevents falsification — the stats displayed on DevGlobe always match the real data on GitHub.
-
-### Anonymous mode
-
-When anonymous mode is enabled, the extension replaces your real coordinates with a **random city in your country**, chosen from a database of 152,000+ cities worldwide (GeoNames). Your actual location is never transmitted to DevGlobe. The random city is selected once per session and stays consistent until you restart your IDE or toggle the mode.
-
-On the globe, your profile displays an "anonymous mode" badge instead of your city name.
-
-### Offline detection
-
-After 2 consecutive network failures, the extension switches to offline mode and notifies you. As soon as the connection is back, it automatically resumes heartbeats.
-
-### Architecture
-
-```
-vscode-extension/
-├── src/
-│   ├── extension.ts      # Lifecycle, API key management (SecretStorage)
-│   ├── tracker.ts        # State machine, heartbeat loop, offline detection
-│   ├── heartbeat.ts      # HTTP calls to the database
-│   ├── sidebar.ts        # Side panel (webview HTML/CSS/JS)
-│   ├── geo.ts            # IP geolocation (dual provider + fallback)
-│   ├── git.ts            # Repo detection (owner/repo from remote)
-│   ├── language.ts       # languageId → display name translation
-│   ├── logger.ts         # Debug/info/warn/error logs
-│   └── constants.ts      # URLs, timeouts, intervals
-└── package.json
-
-jetbrains-plugin/
-├── src/main/kotlin/xyz/devglobe/plugin/
-│   ├── core/
-│   │   ├── DevGlobeTracker.kt    # Singleton tracker, heartbeat scheduler
-│   │   ├── HeartbeatService.kt   # HTTP client
-│   │   ├── GeoService.kt         # IP geolocation (same logic)
-│   │   ├── GitService.kt         # Repo detection (owner/repo from remote)
-│   │   ├── LanguageService.kt    # Language detection via native FileType
-│   │   ├── TrackerState.kt       # Immutable state
-│   │   └── Constants.kt          # URLs, timeouts, intervals
-│   ├── auth/
-│   │   └── ApiKeyStorage.kt      # PasswordSafe wrapper (OS keychain)
-│   ├── settings/
-│   │   └── DevGlobeSettings.kt   # IDE settings persistence
-│   ├── ui/
-│   │   ├── SidebarPanel.kt       # Swing panel (login + dashboard)
-│   │   ├── SidebarFactory.kt     # Tool window integration
-│   │   └── DevGlobeStatusBarFactory.kt
-│   └── DevGlobeStartupActivity.kt
-├── src/main/resources/META-INF/
-│   └── plugin.xml
-└── build.gradle.kts
-
-claude-code-plugin/
-├── plugins/devglobe/
-│   ├── src/
-│   │   ├── index.ts           # Heartbeat logic (PostToolUse, UserPromptSubmit, Stop)
-│   │   ├── update-status.ts   # Status message API script
-│   │   ├── types.ts           # TypeScript type definitions
-│   │   ├── lang.ts            # File extension → language mapping
-│   │   └── data/
-│   │       └── city-centers.json  # 152k+ cities (GeoNames)
-│   ├── hooks/
-│   │   └── hooks.json         # Claude Code hook definitions
-│   ├── skills/
-│   │   ├── setup/SKILL.md         # /devglobe:setup
-│   │   ├── anonymous/SKILL.md     # /devglobe:anonymous
-│   │   ├── share-repo/SKILL.md    # /devglobe:share-repo
-│   │   └── status/SKILL.md        # /devglobe:status
-│   ├── scripts/
-│   │   ├── run                # Heartbeat launcher
-│   │   └── update-status      # Status message launcher
-│   └── package.json
-└── .claude-plugin/
-    └── marketplace.json
-```
+The app is optional — you can use DevGlobe without it. **[Learn more →](PRIVACY.md#github-app--verified-commit-stats)**
 
 ---
 
@@ -417,9 +240,7 @@ npm install
 npm run compile
 ```
 
-Test: `F5` in VS Code to launch an Extension Development Host.
-
-Package: `npx @vscode/vsce package`
+Test: `F5` in VS Code to launch an Extension Development Host. Package: `npx @vscode/vsce package`
 
 ### JetBrains
 
@@ -428,24 +249,16 @@ cd jetbrains-plugin
 ./gradlew buildPlugin
 ```
 
-The `.zip` will be in `build/distributions/`.
-
-Test: `./gradlew runIde` or **Run → Run Plugin** in IntelliJ.
+The `.zip` will be in `build/distributions/`. Test: `./gradlew runIde`
 
 ### Claude Code
 
 ```bash
 cd claude-code-plugin/plugins/devglobe
-npm install
-npm run build
+npm install && npm run build
 ```
 
-Install locally:
-
-```
-/plugin marketplace add ./claude-code-plugin
-/plugin install devglobe@devglobe
-```
+Install locally: `/plugin marketplace add ./claude-code-plugin` then `/plugin install devglobe@devglobe`
 
 ---
 
@@ -460,6 +273,27 @@ Contributions are welcome — fixes, new features, documentation.
 
 ---
 
+## Share
+
+If you like DevGlobe, help us spread the word!
+
+<p align="center">
+  <a href="https://twitter.com/intent/tweet?text=I%20just%20discovered%20DevGlobe%20%E2%80%94%20a%20free%20open-source%203D%20globe%20that%20shows%20developers%20coding%20in%20real%20time.%20Extensions%20for%20VS%20Code%2C%20JetBrains%20%26%20Claude%20Code.&url=https%3A%2F%2Fgithub.com%2FNako0%2Fdevglobe-extension"><img src="https://img.shields.io/badge/Share_on-X%20(Twitter)-000000?style=for-the-badge&logo=x" alt="Share on X" /></a>&nbsp;
+  <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2FNako0%2Fdevglobe-extension&title=DevGlobe%20%E2%80%94%20See%20developers%20coding%20in%20real%20time%20on%20a%203D%20globe"><img src="https://img.shields.io/badge/Share_on-Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white" alt="Share on Reddit" /></a>&nbsp;
+  <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2FNako0%2Fdevglobe-extension&t=DevGlobe%20%E2%80%94%20See%20developers%20coding%20in%20real%20time%20on%20a%203D%20globe"><img src="https://img.shields.io/badge/Share_on-Hacker%20News-F0652F?style=for-the-badge&logo=ycombinator&logoColor=white" alt="Share on HN" /></a>&nbsp;
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgithub.com%2FNako0%2Fdevglobe-extension"><img src="https://img.shields.io/badge/Share_on-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="Share on LinkedIn" /></a>
+</p>
+
+---
+
+## Contributors
+
+<a href="https://github.com/Nako0/devglobe-extension/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Nako0/devglobe-extension" alt="Contributors" />
+</a>
+
+---
+
 ## License
 
 MIT
@@ -467,5 +301,5 @@ MIT
 ---
 
 <p align="center">
-  <a href="https://devglobe.xyz">devglobe.xyz</a>
+  <a href="https://devglobe.xyz"><strong>devglobe.xyz</strong></a>
 </p>
