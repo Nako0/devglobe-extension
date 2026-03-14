@@ -1,0 +1,20 @@
+{
+  "name": "devglobe-core",
+  "version": "1.0.0",
+  "description": "Shared core for DevGlobe IDE extensions — heartbeat, geolocation, git detection",
+  "private": true,
+  "type": "module",
+  "main": "dist/devglobe-core.js",
+  "bin": {
+    "devglobe-core": "dist/devglobe-core.js"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js='#!/usr/bin/env node'",
+    "watch": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js='#!/usr/bin/env node' --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0"
+  }
+}

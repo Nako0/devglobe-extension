@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
-import { TrackerState } from './tracker';
+import { TrackerState } from './core-client';
 
 type MessageHandler = (msg: Record<string, unknown>) => void;
 type StateGetter = () => TrackerState;

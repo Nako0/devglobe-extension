@@ -1,0 +1,90 @@
+name: Build devglobe-core
+
+on:
+  push:
+    tags:
+      - 'core-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-js:
+    name: Build JS bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd devglobe-core && npm ci && npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: js-bundle
+          path: devglobe-core/dist/devglobe-core.js
+
+  build-binaries:
+    name: Build native binaries
+    needs: build-js
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            arch: arm64
+            target: darwin-arm64
+            bun-target: bun-darwin-arm64
+          - os: macos-13
+            arch: x64
+            target: darwin-x64
+            bun-target: bun-darwin-x64
+          - os: ubuntu-latest
+            arch: x64
+            target: linux-x64
+            bun-target: bun-linux-x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target: linux-arm64
+            bun-target: bun-linux-arm64
+          - os: windows-latest
+            arch: x64
+            target: win-x64
+            bun-target: bun-windows-x64
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: js-bundle
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Compile binary
+        run: bun build devglobe-core.js --compile --target=${{ matrix.bun-target }} --outfile devglobe-core-${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.target }}
+          path: devglobe-core-${{ matrix.target }}*
+
+  release:
+    name: Create GitHub Release
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/js-bundle/devglobe-core.js
+            artifacts/binary-darwin-arm64/devglobe-core-darwin-arm64
+            artifacts/binary-darwin-x64/devglobe-core-darwin-x64
+            artifacts/binary-linux-x64/devglobe-core-linux-x64
+            artifacts/binary-linux-arm64/devglobe-core-linux-arm64
+            artifacts/binary-win-x64/devglobe-core-win-x64*
+          generate_release_notes: true

@@ -10,19 +10,10 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import xyz.devglobe.plugin.auth.ApiKeyStorage
 import xyz.devglobe.plugin.core.DevGlobeTracker
-import xyz.devglobe.plugin.core.HeartbeatService
 import xyz.devglobe.plugin.core.TrackerState
 import xyz.devglobe.plugin.settings.DevGlobeSettings
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class SidebarFactory : ToolWindowFactory, DumbAware {
-
-    companion object {
-        private val executor: ExecutorService = Executors.newSingleThreadExecutor { r ->
-            Thread(r, "DevGlobe-Sidebar").apply { isDaemon = true }
-        }
-    }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val tracker = DevGlobeTracker.getInstance()
@@ -61,21 +52,7 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
             }
 
             override fun onSetStatus(message: String) {
-                val apiKey = ApiKeyStorage.get() ?: return
-                executor.submit {
-                    val ok = HeartbeatService.updateStatusMessage(apiKey, message)
-                    com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
-                        if (ok) {
-                            tracker.setStatusMessage(message)
-                            val settings = DevGlobeSettings.getInstance()
-                            settings.state.statusMessage = message
-                            val text = if (message.isNotEmpty()) "Status set to \"$message\"" else "Status cleared"
-                            notify(project, text, NotificationType.INFORMATION)
-                        } else {
-                            notify(project, "Failed to update status.", NotificationType.ERROR)
-                        }
-                    }
-                }
+                tracker.sendSetStatus(message)
             }
 
             override fun onToggleShareRepo(enabled: Boolean) {
@@ -95,14 +72,11 @@ class SidebarFactory : ToolWindowFactory, DumbAware {
             }
         }
 
-        // Listen for state changes
         val stateListener: (TrackerState) -> Unit = { state -> panel.updateState(state) }
         tracker.addStateListener(stateListener)
 
-        // Push initial state
         panel.updateState(tracker.getState())
 
-        // Remove listener when tool window is disposed
         com.intellij.openapi.util.Disposer.register(toolWindow.disposable) {
             tracker.removeStateListener(stateListener)
         }

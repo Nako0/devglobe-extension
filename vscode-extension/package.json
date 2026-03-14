@@ -17,7 +17,7 @@
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "scripts": {
-    "compile": "tsc -p ./ && mkdir -p out/data && cp src/data/*.json out/data/",
+    "compile": "tsc -p ./ && cp ../devglobe-core/dist/devglobe-core.js out/",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
