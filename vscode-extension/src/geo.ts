@@ -1,5 +1,5 @@
 import { request as httpsRequest } from 'https';
-import { GEO_CACHE_TTL, GEO_TIMEOUT_MS } from './constants';
+import { GEO_CACHE_TTL, GEO_PROVIDER_COOLDOWN, GEO_TIMEOUT_MS } from './constants';
 import { log } from './logger';
 import cityCenters from './data/city-centers.json';
 
@@ -145,6 +145,54 @@ async function fromIpApiCo(): Promise<GeoResult | null> {
     };
 }
 
+/**
+ * Provider 3 (fallback): ipwho.is
+ */
+async function fromIpWhoIs(): Promise<GeoResult | null> {
+    const data = await fetchJson('https://ipwho.is/') as {
+        city?: string; country?: string; country_code?: string;
+        latitude?: unknown; longitude?: unknown; success?: boolean;
+    } | null;
+    if (!data || data.success === false) return null;
+
+    const lat = typeof data.latitude === 'number' ? data.latitude : null;
+    const lon = typeof data.longitude === 'number' ? data.longitude : null;
+    if (lat == null || lon == null || !validCoords(lat, lon)) return null;
+
+    const city = data.city && data.country
+        ? `${data.city}, ${data.country}`
+        : (data.city ?? data.country ?? null);
+
+    const [snappedLat, snappedLon] = snapToCity(data.city, data.country_code, lat, lon);
+    return {
+        city,
+        lat: snappedLat,
+        lon: snappedLon,
+        countryCode: data.country_code ?? null,
+        countryName: data.country ?? null,
+    };
+}
+
+const providerFailedAt: Record<string, number> = {};
+
+function isProviderHealthy(name: string): boolean {
+    const failedAt = providerFailedAt[name];
+    if (!failedAt) return true;
+    return Date.now() - failedAt > GEO_PROVIDER_COOLDOWN;
+}
+
+async function tryProvider(name: string, fn: () => Promise<GeoResult | null>): Promise<GeoResult | null> {
+    if (!isProviderHealthy(name)) return null;
+    const result = await fn();
+    if (!result) {
+        providerFailedAt[name] = Date.now();
+        log.debug(`Geo provider ${name} failed, cooling down for ${GEO_PROVIDER_COOLDOWN / 60000}m`);
+    } else {
+        delete providerFailedAt[name];
+    }
+    return result;
+}
+
 /** Capitalizes each word: "sao paulo" → "Sao Paulo", "saint-denis" → "Saint-Denis" */
 function titleCase(s: string): string {
     return s.replace(/(?:^|[\s-])\S/g, (c) => c.toUpperCase());
@@ -200,21 +248,25 @@ export function resetAnonymousLocation(): void {
 /**
  * Returns the developer's approximate location.
  *
- * - Tries freeipapi.com first, falls back to ipapi.co
- * - Results are cached for one hour
+ * - Tries freeipapi.com → ipapi.co → ipwho.is with health tracking
+ * - Results are cached for 4 hours (with ±10% jitter)
  * - Coordinates are snapped to city centers (152k+ cities) for privacy
  * - When `anonymous` is true, returns a random city in the same country
  * - Returns stale cache if both providers fail
  */
 export async function fetchGeolocation(anonymous = false): Promise<GeoResult | null> {
-    if (cached && Date.now() - lastFetch < GEO_CACHE_TTL) {
+    // Add ±10% jitter to prevent all clients refreshing simultaneously
+    const jitter = GEO_CACHE_TTL * 0.1 * (Math.random() * 2 - 1);
+    if (cached && Date.now() - lastFetch < GEO_CACHE_TTL + jitter) {
         return anonymous ? getAnonymousLocation(cached) : cached;
     }
 
     try {
-        const next = await fromFreeIpApi() ?? await fromIpApiCo();
+        const next = await tryProvider('freeipapi', fromFreeIpApi)
+                  ?? await tryProvider('ipapi.co', fromIpApiCo)
+                  ?? await tryProvider('ipwho.is', fromIpWhoIs);
         if (!next) {
-            log.warn('Geolocation: both providers failed');
+            log.warn('Geolocation: all providers failed');
             return cached ? (anonymous ? getAnonymousLocation(cached) : cached) : null;
         }
 
