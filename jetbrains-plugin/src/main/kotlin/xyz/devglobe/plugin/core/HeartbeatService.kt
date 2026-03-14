@@ -5,7 +5,7 @@ import com.google.gson.JsonParser
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import xyz.devglobe.plugin.settings.DevGlobeSettings
-import com.intellij.util.PlatformUtils
+import com.intellij.openapi.application.ApplicationInfo
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -62,7 +62,7 @@ object HeartbeatService {
         val response: HttpResponse<String>
         try {
             val req = HttpRequest.newBuilder()
-                .uri(URI.create("${Constants.SUPABASE_URL}/functions/v1/heartbeat"))
+                .uri(URI.create("${Constants.SUPABASE_URL}/rest/v1/rpc/heartbeat"))
                 .timeout(Duration.ofSeconds(Constants.FETCH_TIMEOUT_SECONDS))
                 .header("Content-Type", "application/json")
                 .header("apikey", Constants.SUPABASE_ANON_KEY)
@@ -114,19 +114,19 @@ object HeartbeatService {
     }
 
     private fun detectEditor(): String {
-        val prefix = PlatformUtils.getPlatformPrefix()
-        return when {
-            prefix.equals("idea", ignoreCase = true) || prefix == "IdeaEdu" -> "intellij"
-            prefix == "WebStorm" -> "webstorm"
-            prefix == "Python" || prefix == "PyCharmCore" || prefix == "PyCharmEdu" -> "pycharm"
-            prefix == "GoLand" -> "goland"
-            prefix == "PhpStorm" -> "phpstorm"
-            prefix == "Ruby" -> "rubymine"
-            prefix == "CLion" -> "clion"
-            prefix == "Rider" -> "rider"
-            prefix == "DataGrip" -> "datagrip"
-            prefix == "AndroidStudio" -> "android-studio"
-            prefix == "RustRover" -> "rustrover"
+        val productCode = ApplicationInfo.getInstance().build.productCode
+        return when (productCode) {
+            "IC", "IU" -> "intellij"
+            "WS" -> "webstorm"
+            "PY", "PC" -> "pycharm"
+            "GO" -> "goland"
+            "PS" -> "phpstorm"
+            "RM" -> "rubymine"
+            "CL" -> "clion"
+            "RD" -> "rider"
+            "DB" -> "datagrip"
+            "AI" -> "android-studio"
+            "RR" -> "rustrover"
             else -> "jetbrains"
         }
     }

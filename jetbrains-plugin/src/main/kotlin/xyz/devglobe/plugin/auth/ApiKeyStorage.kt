@@ -7,7 +7,9 @@ import com.intellij.ide.passwordSafe.PasswordSafe
 object ApiKeyStorage {
 
     private val attributes = CredentialAttributes(
-        generateServiceName("DevGlobe", "apiKey")
+        generateServiceName("DevGlobe", "apiKey"),
+        userName = "apiKey",
+        requestor = ApiKeyStorage::class.java
     )
 
     fun get(): String? =

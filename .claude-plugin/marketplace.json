@@ -9,7 +9,7 @@
     {
       "name": "devglobe",
       "description": "DevGlobe heartbeat plugin - sends coding activity to the DevGlobe globe when using Claude Code",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "DevGlobe"
       },

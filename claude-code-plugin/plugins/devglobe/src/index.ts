@@ -108,7 +108,7 @@ async function main(): Promise<void> {
   });
 
   try {
-    await httpPost(`${SUPABASE_URL}/functions/v1/heartbeat`, body, {
+    await httpPost(`${SUPABASE_URL}/rest/v1/rpc/heartbeat`, body, {
       'Content-Type': 'application/json',
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,

@@ -89,7 +89,7 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-        res = await fetch(`${SUPABASE_URL}/functions/v1/heartbeat`, {
+        res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/heartbeat`, {
             method: 'POST',
             headers: HEADERS,
             body: JSON.stringify(body),
