@@ -57,7 +57,7 @@ function validCoords(lat: number, lon: number): boolean {
     return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
 }
 
-/** Fetches JSON over HTTPS, forcing IPv6 for more accurate IP geolocation. */
+/** Fetches JSON via https.request (bypasses VS Code's fetch override, uses Node's autoSelectFamily). */
 async function fetchJson(url: string): Promise<unknown | null> {
     return new Promise((resolve) => {
         const timer = setTimeout(() => {
@@ -65,7 +65,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
             resolve(null);
         }, GEO_TIMEOUT_MS);
 
-        const req = httpsRequest(url, { family: 6, timeout: GEO_TIMEOUT_MS }, (res) => {
+        const req = httpsRequest(url, { timeout: GEO_TIMEOUT_MS, autoSelectFamily: true }, (res) => {
             const chunks: Buffer[] = [];
             res.on('data', (c: Buffer) => chunks.push(c));
             res.on('end', () => {
