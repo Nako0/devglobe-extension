@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { sendHeartbeat, NetworkError, ApiError } from './heartbeat';
-import { HEARTBEAT_INTERVAL, ACTIVITY_TIMEOUT, OFFLINE_THRESHOLD } from './constants';
+import { HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL_IDLE, ACTIVITY_TIMEOUT, OFFLINE_THRESHOLD } from './constants';
 import { resetAnonymousLocation } from './geo';
 import { log } from './logger';
 
@@ -38,13 +38,15 @@ export const DEFAULT_STATE: TrackerState = {
  */
 export class Tracker implements vscode.Disposable {
     private state: TrackerState;
-    private heartbeatTimer: ReturnType<typeof setInterval> | null;
+    private heartbeatTimer: ReturnType<typeof setTimeout> | null;
     private statusBarItem: vscode.StatusBarItem | null;
     private lastActivity: number;
     private consecutiveNetErrors: number;
     private currentApiKey: string | null;
     private ticking: boolean;
     private last5xxWarning: number;
+    private lastPayloadHash: string;
+    private idleHeartbeats: number;
 
     constructor(
         private readonly context: vscode.ExtensionContext,
@@ -58,6 +60,8 @@ export class Tracker implements vscode.Disposable {
         this.currentApiKey = null;
         this.ticking = false;
         this.last5xxWarning = 0;
+        this.lastPayloadHash = '';
+        this.idleHeartbeats = 0;
 
         // Ensure cleanup when the extension is deactivated
         context.subscriptions.push(this);
@@ -83,6 +87,7 @@ export class Tracker implements vscode.Disposable {
     /** Call this on every text-document change to keep the activity timer alive. */
     recordActivity(): void {
         this.lastActivity = Date.now();
+        this.idleHeartbeats = 0;
     }
 
     /**
@@ -131,14 +136,8 @@ export class Tracker implements vscode.Disposable {
         this.pushState();
         this.lastActivity = Date.now();
 
-        // Heartbeat loop: fires every 30 s, skipped if user is idle
-        this.heartbeatTimer = setInterval(() => {
-            if (Date.now() - this.lastActivity > ACTIVITY_TIMEOUT) return;
-            this.tick(apiKey);
-        }, HEARTBEAT_INTERVAL);
-
         // Fire once immediately so the sidebar shows data right away
-        this.tick(apiKey);
+        this.tick(apiKey).then(() => this.scheduleNextBeat(apiKey));
     }
 
     /**
@@ -210,6 +209,17 @@ export class Tracker implements vscode.Disposable {
             this.state.language   = result.language;
             this.updateStatusBar(result.todaySeconds);
             this.pushState();
+
+            const hash = `${result.language}:${result.todaySeconds}`;
+            if (hash === this.lastPayloadHash) {
+                this.idleHeartbeats++;
+                if (this.idleHeartbeats === 2) {
+                    log.debug('Heartbeat: switching to idle interval (60s)');
+                }
+            } else {
+                this.idleHeartbeats = 0;
+            }
+            this.lastPayloadHash = hash;
         } catch (e) {
             if (e instanceof NetworkError) {
                 this.consecutiveNetErrors++;
@@ -253,10 +263,21 @@ export class Tracker implements vscode.Disposable {
         this.statusBarItem.show();
     }
 
-    /** Clear the heartbeat interval without touching state or pushing to sidebar. */
+    private scheduleNextBeat(apiKey: string): void {
+        const interval = this.idleHeartbeats >= 2 ? HEARTBEAT_INTERVAL_IDLE : HEARTBEAT_INTERVAL;
+        this.heartbeatTimer = setTimeout(() => {
+            if (Date.now() - this.lastActivity > ACTIVITY_TIMEOUT) {
+                this.scheduleNextBeat(apiKey);
+                return;
+            }
+            this.tick(apiKey).then(() => this.scheduleNextBeat(apiKey));
+        }, interval);
+    }
+
+    /** Clear the heartbeat timeout without touching state or pushing to sidebar. */
     private clearTimer(): void {
         if (this.heartbeatTimer) {
-            clearInterval(this.heartbeatTimer);
+            clearTimeout(this.heartbeatTimer);
             this.heartbeatTimer = null;
         }
         this.statusBarItem?.hide();
