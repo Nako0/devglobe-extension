@@ -73,6 +73,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     vscode.window.showErrorMessage('DevGlobe: Invalid API key — it should start with "devglobe_".');
                     break;
                 }
+                if (token.length < 15 || token.length > 200) {
+                    vscode.window.showErrorMessage('DevGlobe: Invalid API key — unexpected length.');
+                    break;
+                }
                 await context.secrets.store(SECRET_API_KEY, token);
                 const savedConf = vscode.workspace.getConfiguration('devglobe');
                 tracker.restoreConnected(token, savedConf);
