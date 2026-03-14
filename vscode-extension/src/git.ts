@@ -17,7 +17,11 @@ let repoFetchedAt = 0;
 function execAsync(cmd: string, cwd: string, timeout: number): Promise<string | null> {
     return new Promise((resolve) => {
         exec(cmd, { cwd, encoding: 'utf8', timeout }, (err, stdout) => {
-            if (err) { resolve(null); return; }
+            if (err) {
+                log.debug('exec failed:', cmd, (err as Error).message);
+                resolve(null);
+                return;
+            }
             resolve((stdout ?? '').trim());
         });
     });
@@ -75,7 +79,9 @@ export async function detectRepo(): Promise<string | null> {
             repoFetchedAt = Date.now();
             return cachedRepo;
         }
-    } catch { /* not a valid URL */ }
+    } catch {
+        log.debug('Git remote URL is not a valid URL:', url);
+    }
 
     cachedRepo = null;
     cachedRepoCwd = cwd;
