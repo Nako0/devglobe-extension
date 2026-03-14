@@ -1,0 +1,13 @@
+id = "devglobe"
+name = "DevGlobe"
+version = "0.1.0"
+schema_version = 1
+authors = ["DevGlobe Contributors"]
+description = "Show your live coding presence on the DevGlobe world map"
+repository = "https://github.com/Nako0/devglobe-extension"
+
+[capabilities]
+process = true
+
+[[context_servers]]
+id = "devglobe-heartbeat"
