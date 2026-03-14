@@ -125,7 +125,8 @@ export async function updateStatusMessage(apiKey: string, message: string): Prom
             signal: controller.signal,
         });
         return res.ok;
-    } catch {
+    } catch (e) {
+        log.warn('Status update failed:', (e as Error).message);
         return false;
     } finally {
         clearTimeout(timer);
