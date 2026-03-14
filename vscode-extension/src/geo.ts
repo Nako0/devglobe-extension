@@ -65,7 +65,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
             resolve(null);
         }, GEO_TIMEOUT_MS);
 
-        const req = httpsRequest(url, { timeout: GEO_TIMEOUT_MS, autoSelectFamily: true }, (res) => {
+        const req = httpsRequest(url, { timeout: GEO_TIMEOUT_MS, autoSelectFamily: true } as object, (res) => {
             const chunks: Buffer[] = [];
             res.on('data', (c: Buffer) => chunks.push(c));
             res.on('end', () => {
