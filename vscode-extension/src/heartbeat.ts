@@ -115,17 +115,21 @@ export async function sendHeartbeat(apiKey: string): Promise<{ todaySeconds: num
  * Returns true on success, false otherwise.
  */
 export async function updateStatusMessage(apiKey: string, message: string): Promise<boolean> {
+    // Enforce length limit at the API boundary (sidebar path has no client-side validation)
+    const sanitized = message.slice(0, 100);
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/update_status_message`, {
             method: 'POST',
             headers: HEADERS,
-            body: JSON.stringify({ p_key: apiKey, p_message: message }),
+            body: JSON.stringify({ p_key: apiKey, p_message: sanitized }),
             signal: controller.signal,
         });
         return res.ok;
-    } catch {
+    } catch (e) {
+        log.warn('Status update failed:', (e as Error).message);
         return false;
     } finally {
         clearTimeout(timer);
