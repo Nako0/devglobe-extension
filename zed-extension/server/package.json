@@ -1,0 +1,10 @@
+{
+  "name": "devglobe-zed-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DevGlobe MCP context server for Zed",
+  "main": "devglobe-server.js",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
