@@ -8,7 +8,10 @@ export const HEARTBEAT_INTERVAL = 30 * 1000; // 30 seconds
 export const ACTIVITY_TIMEOUT = 1 * 60 * 1000; // 1 minute
 
 /** How long geolocation is cached before re-fetching. */
-export const GEO_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+export const GEO_CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
+
+/** Cooldown period before retrying a failed geo provider. */
+export const GEO_PROVIDER_COOLDOWN = 10 * 60 * 1000; // 10 minutes
 
 /**
  * How many consecutive network failures must occur before the extension
