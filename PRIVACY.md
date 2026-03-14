@@ -217,6 +217,27 @@ claude-code-plugin/
 
 ---
 
+## Third-party services
+
+The extensions rely on two external services. Neither receives your DevGlobe API key or any coding data.
+
+| Service | Purpose | Data sent | Privacy policy |
+|---------|---------|-----------|----------------|
+| [freeipapi.com](https://freeipapi.com) | IP geolocation (primary) | Your IP address (via standard HTTPS request) | [freeipapi.com/privacy](https://freeipapi.com) |
+| [ipapi.co](https://ipapi.co) | IP geolocation (fallback) | Your IP address (via standard HTTPS request) | [ipapi.co/privacy](https://ipapi.co/privacy/) |
+
+Your IP address is used only to determine your city. It is never transmitted to or stored by DevGlobe.
+
+---
+
+## Data retention
+
+- **Heartbeats**: Your last heartbeat determines your live status on the globe. Heartbeats older than **10 minutes** are considered expired and your marker is removed from the globe.
+- **Coding time**: Daily coding time is retained for leaderboard and streak tracking.
+- **Account data**: Retained until you delete your account.
+
+---
+
 ## Account deletion
 
 If you delete your account on [devglobe.xyz](https://devglobe.xyz), all your data is permanently erased. No information is kept.
