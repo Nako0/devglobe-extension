@@ -1,3 +1,4 @@
+import { request as httpsRequest } from 'https';
 import { GEO_CACHE_TTL, GEO_TIMEOUT_MS } from './constants';
 import { log } from './logger';
 import cityCenters from './data/city-centers.json';
@@ -56,19 +57,36 @@ function validCoords(lat: number, lon: number): boolean {
     return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
 }
 
-/** Fetches with a timeout and returns the parsed JSON, or null on failure. */
+/** Fetches JSON over HTTPS, forcing IPv6 for more accurate IP geolocation. */
 async function fetchJson(url: string): Promise<unknown | null> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), GEO_TIMEOUT_MS);
-    try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timer);
-        if (!res.ok) return null;
-        return await res.json();
-    } catch {
-        clearTimeout(timer);
-        return null;
-    }
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+            req.destroy();
+            resolve(null);
+        }, GEO_TIMEOUT_MS);
+
+        const req = httpsRequest(url, { family: 6, timeout: GEO_TIMEOUT_MS }, (res) => {
+            const chunks: Buffer[] = [];
+            res.on('data', (c: Buffer) => chunks.push(c));
+            res.on('end', () => {
+                clearTimeout(timer);
+                if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        resolve(JSON.parse(Buffer.concat(chunks).toString()));
+                    } catch {
+                        resolve(null);
+                    }
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+        req.on('error', () => {
+            clearTimeout(timer);
+            resolve(null);
+        });
+        req.end();
+    });
 }
 
 /**
