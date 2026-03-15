@@ -2,11 +2,33 @@
 
 Show your live coding presence on the [DevGlobe](https://devglobe.xyz) world map from Zed.
 
+> **Note:** This extension is pending review for the Zed marketplace ([PR #5237](https://github.com/zed-industries/extensions/pull/5237)). In the meantime, you can install it manually as a dev extension.
+
 ## Requirements
 
 - [Zed](https://zed.dev) editor
 - [Node.js](https://nodejs.org) 18 or later
 - A DevGlobe API key from [devglobe.xyz](https://devglobe.xyz)
+
+## Installation
+
+### Option A: From the standalone repo (no build required)
+
+```bash
+git clone https://github.com/CaadriFR/zed-devglobe.git
+```
+
+Then in Zed: `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Linux) → "zed: install dev extension" → select the `zed-devglobe/` folder.
+
+### Option B: From the main DevGlobe repo (requires build)
+
+```bash
+git clone https://github.com/Nako0/devglobe-extension.git
+cd devglobe-extension/devglobe-core && npm install && npm run build
+cd ../zed-extension/server && npm install && npm run build
+```
+
+Then in Zed: `Cmd+Shift+P` → "zed: install dev extension" → select the `zed-extension/` folder.
 
 ## Setup
 
@@ -34,19 +56,11 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.devglobe"
 
 Replace `devglobe_YOUR_KEY_HERE` with your actual API key.
 
-### 3. Install the extension
-
-Install DevGlobe from the Zed extensions marketplace, or as a dev extension:
-
-1. Open Zed
-2. `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Linux) → "zed: install dev extension"
-3. Select the `zed-extension/` folder
-
-### 4. Trust your project
+### 3. Trust your project
 
 When you open a project, Zed may ask you to trust the worktree. Accept to allow the DevGlobe language server to start.
 
-### 5. Start coding
+### 4. Start coding
 
 Open any code file and start editing. You'll appear on the globe within 30 seconds. The extension detects your language automatically.
 
@@ -68,17 +82,9 @@ Edit `~/.devglobe/config.json` to change settings. Changes are detected automati
 
 ### Update status message
 
-**macOS / Linux:**
-
 ```bash
-cd /path/to/zed-extension/server
-node -- dist/server.js status "Working on my project"
-```
-
-**Clear status:**
-
-```bash
-node -- dist/server.js status ""
+node -- path/to/server/dist/server.js status "Working on my project"
+node -- path/to/server/dist/server.js status ""  # clear
 ```
 
 ## How it works
