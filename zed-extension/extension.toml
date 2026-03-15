@@ -1,0 +1,25 @@
+id = "devglobe"
+name = "DevGlobe"
+version = "0.1.0"
+schema_version = 1
+authors = ["DevGlobe <contact@devglobe.xyz>"]
+description = "Show your live coding presence on the DevGlobe world map"
+repository = "https://github.com/Nako0/devglobe-extension"
+
+[language_servers.devglobe-ls]
+name = "DevGlobe Activity"
+languages = [
+  "Astro", "AWK", "Assembly", "Bash", "Blade", "C", "C#", "C++",
+  "Clojure", "CoffeeScript", "CSS", "Dart", "Docker", "Elixir",
+  "Elm", "Erlang", "Fish", "Fortran", "GDScript", "GLSL", "Go",
+  "GraphQL", "Groovy", "Haskell", "HCL", "HTML", "INI", "Java",
+  "JavaScript", "JSON", "JSX", "Julia", "Kotlin", "LaTeX", "Less",
+  "Lua", "Make", "Markdown", "MATLAB", "Nix", "Objective-C", "OCaml",
+  "Pascal", "Perl", "PHP", "Plain Text", "PowerShell", "Prisma",
+  "Protobuf", "Proto", "PureScript", "Python", "R", "Racket",
+  "Ruby", "Rust", "Sass", "SCSS", "Scala", "Scheme", "Shell Script",
+  "Solidity", "SQL", "Svelte", "Swift", "TOML", "TSX", "TypeScript",
+  "Typst", "V", "Verilog", "VHDL", "Vue.js", "WGSL", "XML", "YAML",
+  "Zig",
+]
+

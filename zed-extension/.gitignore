@@ -1,0 +1,5 @@
+/target/
+/server/dist/
+/server/node_modules/
+*.wasm
+Cargo.lock

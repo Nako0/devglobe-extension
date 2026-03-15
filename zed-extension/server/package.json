@@ -1,0 +1,14 @@
+{
+  "name": "devglobe-zed-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/server.js",
+    "watch": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/server.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0"
+  }
+}
