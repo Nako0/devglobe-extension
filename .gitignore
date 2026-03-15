@@ -1,6 +1,7 @@
 # Node
 node_modules/
 out/
+dist/
 *.vsix
 
 # JetBrains / Gradle
@@ -9,6 +10,11 @@ build/
 .intellijPlatform/
 *.iml
 .idea/
+
+# Rust / WASM
+target/
+*.wasm
+Cargo.lock
 
 # OS
 .DS_Store
