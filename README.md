@@ -14,6 +14,7 @@
 <p align="center">
   <a href="#vs-code">VS Code</a> &nbsp;·&nbsp;
   <a href="#jetbrains">JetBrains</a> &nbsp;·&nbsp;
+  <a href="#zed">Zed</a> &nbsp;·&nbsp;
   <a href="#claude-code">Claude Code</a>
 </p>
 
@@ -138,6 +139,69 @@ Compatible with **all JetBrains IDEs**: IntelliJ IDEA, WebStorm, PyCharm, GoLand
 
 ---
 
+### Zed
+
+> **Pending review for the Zed marketplace** ([PR #5237](https://github.com/zed-industries/extensions/pull/5237)). Install manually as a dev extension for now.
+
+#### Installation
+
+**Option A — Standalone repo (no build required):**
+
+```bash
+git clone https://github.com/CaadriFR/zed-devglobe.git
+```
+
+In Zed: `Cmd+Shift+P` → "zed: install dev extension" → select the `zed-devglobe/` folder.
+
+**Option B — From this repo (requires build):**
+
+```bash
+cd devglobe-core && npm install && npm run build
+cd ../zed-extension/server && npm install && npm run build
+```
+
+In Zed: `Cmd+Shift+P` → "zed: install dev extension" → select the `zed-extension/` folder.
+
+#### Setup
+
+**macOS / Linux:**
+
+```bash
+mkdir -p ~/.devglobe
+echo -n "devglobe_YOUR_KEY_HERE" > ~/.devglobe/api_key
+echo '{"shareRepo": false, "anonymousMode": true}' > ~/.devglobe/config.json
+```
+
+**Windows (PowerShell):**
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.devglobe"
+"devglobe_YOUR_KEY_HERE" | Out-File -NoNewline "$env:USERPROFILE\.devglobe\api_key"
+'{"shareRepo": false, "anonymousMode": true}' | Out-File "$env:USERPROFILE\.devglobe\config.json"
+```
+
+Open a project in Zed, trust the worktree when prompted, and start coding. You'll appear on the globe within 30 seconds.
+
+#### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Live heartbeat** | 30s interval via LSP events (didOpen/didChange/didSave). Pauses after 1 min of inactivity. |
+| **Language detection** | Precise detection via Zed's LSP language ID. 80+ languages supported. |
+| **Git integration** | Detects your repo from the git remote. |
+| **Anonymous mode** | Random city in your country (152,000+ cities). Edit `~/.devglobe/config.json`. |
+| **Status message** | `node -- server/dist/server.js status "Your message"` |
+| **Repo sharing** | Edit `~/.devglobe/config.json` → `"shareRepo": true` |
+| **Offline recovery** | Automatic detection + resume. |
+| **Config hot reload** | Changes to `~/.devglobe/` are detected automatically. |
+
+#### Requirements
+
+- [Node.js](https://nodejs.org) 18+
+- Zed editor
+
+---
+
 ### Claude Code
 
 #### Installation
@@ -250,6 +314,15 @@ cd jetbrains-plugin
 ```
 
 The `.zip` will be in `build/distributions/`. Test: `./gradlew runIde`
+
+### Zed
+
+```bash
+cd devglobe-core && npm install && npm run build
+cd ../zed-extension/server && npm install && npm run build
+```
+
+In Zed: `Cmd+Shift+P` → "zed: install dev extension" → select the `zed-extension/` folder.
 
 ### Claude Code
 
