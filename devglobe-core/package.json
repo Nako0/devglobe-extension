@@ -9,8 +9,8 @@
     "devglobe-core": "dist/devglobe-core.js"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js='#!/usr/bin/env node'",
-    "watch": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js='#!/usr/bin/env node' --watch"
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js=\"#!/usr/bin/env node\"",
+    "watch": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/devglobe-core.js --banner:js=\"#!/usr/bin/env node\" --watch"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",

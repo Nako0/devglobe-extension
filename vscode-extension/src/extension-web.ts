@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { initLogger, log } from './logger';
-import { CoreClient } from './core-client';
 import { mapLanguageId } from './client-shared';
 import { DevGlobeSidebarProvider } from './sidebar';
+import { WebCoreClient } from './web-core-client';
 
 const ALLOWED_TOGGLE_KEYS = new Set(['shareRepo', 'anonymousMode']);
 const SECRET_API_KEY = 'devglobe.apiKey';
@@ -24,7 +24,7 @@ async function getApiKey(context: vscode.ExtensionContext): Promise<string> {
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     initLogger(context.extensionMode === vscode.ExtensionMode.Development);
-    log.info('DevGlobe activating…');
+    log.info('DevGlobe (web) activating...');
 
     const sidebar = new DevGlobeSidebarProvider(context.extensionUri);
     context.subscriptions.push(
@@ -32,10 +32,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             DevGlobeSidebarProvider.viewType,
             sidebar,
             { webviewOptions: { retainContextWhenHidden: true } },
-        )
+        ),
     );
 
-    const client = new CoreClient(context, (state) => sidebar.updateState(state));
+    const client = new WebCoreClient(context, (state) => sidebar.updateState(state));
     sidebar.setStateGetter(() => client.getState());
 
     sidebar.setMessageHandler(async (msg) => {
@@ -45,9 +45,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             case 'saveToken': {
                 const token = String(msg.token ?? '').trim();
                 if (!token || !token.startsWith('devglobe_')) {
-                    vscode.window.showErrorMessage('DevGlobe: Invalid API key — it should start with "devglobe_".');
+                    vscode.window.showErrorMessage('DevGlobe: Invalid API key - it should start with "devglobe_".');
                     break;
                 }
+
                 await context.secrets.store(SECRET_API_KEY, token);
                 const savedConf = vscode.workspace.getConfiguration('devglobe');
                 client.init(token, savedConf);
@@ -59,6 +60,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             case 'toggle': {
                 const key = String(msg.key ?? '');
                 if (!ALLOWED_TOGGLE_KEYS.has(key)) break;
+
                 const value = Boolean(msg.value);
                 client.updatePreference(key as keyof ReturnType<typeof client.getState>, value);
                 client.setConfig(key, value);
@@ -82,6 +84,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             case 'startTracking': {
                 const apiKey = await getApiKey(context);
                 if (!apiKey) break;
+
                 await config.update('trackingEnabled', true, vscode.ConfigurationTarget.Global);
                 client.init(apiKey, config);
                 client.start();
@@ -103,7 +106,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             case 'openExternal': {
                 const url = String(msg.url ?? '');
                 if (!url.startsWith('https://') && !url.startsWith('http://')) break;
-                vscode.env.openExternal(vscode.Uri.parse(url));
+                void vscode.env.openExternal(vscode.Uri.parse(url));
                 break;
             }
         }
@@ -111,11 +114,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument((e) => {
-            const filePath = e.document.uri.fsPath;
-            const cwd = require('path').dirname(filePath);
             const language = mapLanguageId(e.document.languageId);
+            const filePath = e.document.uri.path || e.document.uri.toString();
+            const folder = vscode.workspace.getWorkspaceFolder(e.document.uri);
+            const cwd = folder?.uri.path ?? '/';
             client.activity(filePath, cwd, language);
-        })
+        }),
     );
 
     context.subscriptions.push(
@@ -131,7 +135,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
             if (message === undefined) return;
             client.setStatus(message);
-        })
+        }),
     );
 
     context.subscriptions.push(
@@ -142,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             client.setConfig('anonymousMode', !current);
             client.updatePreference('anonymousMode', !current);
             vscode.window.showInformationMessage(`DevGlobe: Anonymous mode ${!current ? 'enabled' : 'disabled'}`);
-        })
+        }),
     );
 
     context.subscriptions.push(
@@ -153,20 +157,20 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             client.setConfig('shareRepo', !current);
             client.updatePreference('shareRepo', !current);
             vscode.window.showInformationMessage(`DevGlobe: Repo sharing ${!current ? 'enabled' : 'disabled'}`);
-        })
+        }),
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('devglobe.showCodingTime', () => {
             const state = client.getState();
-            vscode.window.showInformationMessage(`DevGlobe: ${state.codingTime} today${state.language ? ` — ${state.language}` : ''}`);
-        })
+            vscode.window.showInformationMessage(`DevGlobe: ${state.codingTime} today${state.language ? ` - ${state.language}` : ''}`);
+        }),
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('devglobe.openGlobe', () => {
-            vscode.env.openExternal(vscode.Uri.parse('https://devglobe.xyz/explore'));
-        })
+            void vscode.env.openExternal(vscode.Uri.parse('https://devglobe.xyz/explore'));
+        }),
     );
 
     const savedConfig = vscode.workspace.getConfiguration('devglobe');
@@ -183,9 +187,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         sidebar.updateState(client.getState());
     }
 
-    log.info('DevGlobe activated.');
+    log.info('DevGlobe (web) activated.');
 }
 
 export function deactivate(): void {
-    // CoreClient.dispose() handles cleanup via context.subscriptions
+    // WebCoreClient.dispose() handles cleanup via context.subscriptions
 }

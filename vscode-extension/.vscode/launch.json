@@ -6,6 +6,27 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"]
+    },
+    {
+      "name": "Run Web Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionDevelopmentKind=web"
+      ]
+    },
+    {
+      "name": "Run Web Extension (Isolé)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionDevelopmentKind=web",
+        "--user-data-dir=${workspaceFolder}/.vscode/dev-user-data",
+        "--extensions-dir=${workspaceFolder}/.vscode/dev-extensions",
+        "--disable-extensions"
+      ]
     }
   ]
 }

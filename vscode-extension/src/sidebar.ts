@@ -1,9 +1,18 @@
 import * as vscode from 'vscode';
-import * as crypto from 'crypto';
-import { TrackerState } from './core-client';
+import { TrackerState } from './client-shared';
 
 type MessageHandler = (msg: Record<string, unknown>) => void;
 type StateGetter = () => TrackerState;
+
+function createNonce(): string {
+    if (typeof globalThis.crypto?.getRandomValues === 'function') {
+        const bytes = new Uint8Array(16);
+        globalThis.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    return `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`;
+}
 
 /**
  * Provides the DevGlobe sidebar webview.
@@ -49,7 +58,7 @@ export class DevGlobeSidebarProvider implements vscode.WebviewViewProvider {
         };
 
         // Cryptographically secure nonce for the Content Security Policy
-        const nonce = crypto.randomBytes(16).toString('base64');
+        const nonce = createNonce();
 
         webviewView.webview.html = this.getHtml(nonce);
 

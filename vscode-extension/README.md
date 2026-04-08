@@ -62,6 +62,102 @@ Two views in the side panel:
 | `devglobe.anonymousMode` | `false` | Hide your exact location — your marker is placed on a random city in your country (from a database of 152,000+ cities worldwide) |
 | `devglobe.statusMessage` | `""` | Your status message (max 100 characters) |
 
+### VS Code Web (vscode.dev)
+
+The extension now provides a dedicated web runtime for vscode.dev and github.dev, with the same feature set as desktop VS Code:
+
+- 30s heartbeats while active coding
+- pause after 1 minute inactivity
+- language detection from VS Code language IDs
+- optional repo sharing toggle
+- anonymous mode with random city in your country
+- status message update
+- offline/online recovery behavior
+- status bar coding time
+
+In web mode, the OS sent to DevGlobe is detected from browser-provided data (User-Agent), similar to server-side parsing of `HTTP_USER_AGENT`:
+
+- `navigator.userAgentData.platform` (when available)
+- `navigator.userAgent`
+- `navigator.platform`
+
+### How To Try (Desktop + Web)
+
+From this repository:
+
+```bash
+cd devglobe-core
+npm install
+npm run build
+
+cd ../vscode-extension
+npm install
+npm run compile
+```
+
+Then:
+
+1. Desktop: run the `Run Extension` debug configuration.
+2. Web: run the `Run Web Extension` debug configuration.
+3. In the opened window, open the DevGlobe sidebar, connect with your API key, and start tracking.
+
+### How To Test
+
+Functional checks:
+
+1. Connect/disconnect from the sidebar.
+2. Start/stop tracking and verify status bar updates.
+3. Toggle `Share repository` and `Anonymous mode`.
+4. Set and clear status message.
+5. Edit files in different languages and confirm language updates.
+6. Temporarily disable network and verify offline warning, then restore network and verify recovery.
+
+Network checks (Desktop or Web):
+
+1. Open DevTools network tab.
+2. Filter on `heartbeat`, `update_status_message`, `freeipapi`, `ipapi`, `ipwho`.
+3. Confirm payloads match the documented fields below.
+
+### Exact Network Requests
+
+#### DevGlobe API
+
+1. `POST https://kzcrtlbspkhlnjillhyz.supabase.co/rest/v1/rpc/heartbeat`
+2. `POST https://kzcrtlbspkhlnjillhyz.supabase.co/rest/v1/rpc/update_status_message`
+
+Headers:
+
+- `Content-Type: application/json`
+- `apikey: <supabase-anon-key>`
+- `Authorization: Bearer <supabase-anon-key>`
+
+Heartbeat payload fields:
+
+- `p_key` (DevGlobe API key)
+- `p_city` (city display label, when available)
+- `p_lat` and `p_lng` (city-level coordinates)
+- `p_lang` (language label)
+- `p_editor` (e.g. `vscode`, `cursor`, `windsurf`)
+- `p_anonymous` (boolean)
+- `p_share_repo` (boolean)
+- `p_repo` (`owner/repo`, only if share repo is enabled)
+- `p_platform` (OS derived from browser User-Agent in web mode)
+
+Status payload fields:
+
+- `p_key`
+- `p_message` (max 100 chars)
+
+#### Geolocation providers
+
+Used to determine city-level location (with fallback order):
+
+1. `GET https://free.freeipapi.com/api/json`
+2. `GET https://ipapi.co/json/`
+3. `GET https://ipwho.is/`
+
+These providers receive your public IP as part of normal HTTPS request routing. DevGlobe API key is never sent to them.
+
 ---
 
 ## What DevGlobe brings you

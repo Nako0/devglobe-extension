@@ -105,7 +105,7 @@ Two views in the side panel:
 
 #### Requirements
 
-- VS Code **1.80+** — also works with **Cursor**, **Windsurf**, **Antigravity**, and other VS Code forks
+- VS Code **1.80+** (desktop + **vscode.dev** web) — also works with **Cursor**, **Windsurf**, **Antigravity**, and other VS Code forks
 - **Zero external dependencies** — uses only native VS Code and Node.js APIs
 
 ---

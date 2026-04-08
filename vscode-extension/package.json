@@ -16,13 +16,18 @@
   "categories": ["Other"],
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
+  "browser": "./out/web/extension-web.js",
   "scripts": {
-    "compile": "tsc -p ./ && cp ../devglobe-core/dist/devglobe-core.js out/",
+    "build": "npm run compile",
+    "compile": "npm run compile:node && npm run compile:web",
+    "compile:node": "tsc -p ./ && node ./scripts/copy-core.mjs",
+    "compile:web": "node ./scripts/build-web.mjs",
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
     "@types/vscode": "^1.80.0",
     "@types/node": "^20.0.0",
+    "esbuild": "^0.25.5",
     "typescript": "^5.0.0"
   },
   "contributes": {
