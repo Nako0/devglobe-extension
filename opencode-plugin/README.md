@@ -13,11 +13,13 @@ Add `opencode-devglobe` to your `opencode.json`:
 
 ```json
 {
-  "plugin": ["opencode-devglobe"]
+  "plugins": ["opencode-devglobe"]
 }
 ```
 
 OpenCode installs the plugin automatically on startup via npm.
+
+OpenCode 1 users: the same package still ships the V1 plugin implementation, so the legacy `"plugin"` key keeps working.
 
 <details>
 <summary>Alternative: install from a local clone</summary>
@@ -32,7 +34,7 @@ Then in your `opencode.json`:
 
 ```json
 {
-  "plugin": ["file:///path/to/devglobe-extension/opencode-plugin/dist/index.js"]
+  "plugins": ["/path/to/devglobe-extension/opencode-plugin"]
 }
 ```
 
@@ -79,7 +81,7 @@ The plugin registers tools that the AI agent can call on your behalf. Just ask i
 
 ## How it works
 
-The plugin hooks into OpenCode's `tool.execute.after` and `file.edited` events to detect coding activity. It sends a heartbeat to DevGlobe at most once per minute via the shared `devglobe-core`. It automatically detects:
+The plugin hooks into tool executions and session events to detect coding activity. It sends a heartbeat to DevGlobe at most once per minute via the shared `devglobe-core`. It automatically detects:
 
 - The programming language from the files you interact with (exact file paths from tool calls)
 - Your git repository (origin URL, branch, and the current file relative to the repo root)
@@ -93,8 +95,10 @@ A forced heartbeat is sent when the session goes idle or is deleted, ensuring yo
 Since the plugin is installed from npm, OpenCode fetches the latest version automatically. To force an update, remove the cache:
 
 ```bash
-rm -rf ~/.cache/opencode/node_modules/opencode-devglobe
+rm -rf ~/.cache/opencode/npm/opencode-devglobe@latest
 ```
+
+On OpenCode 1 the cache lives at `~/.cache/opencode/node_modules/opencode-devglobe`.
 
 Then restart OpenCode.
 

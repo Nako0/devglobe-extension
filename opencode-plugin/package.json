@@ -1,15 +1,15 @@
 {
   "name": "opencode-devglobe",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "DevGlobe plugin for OpenCode - appear active on the globe while coding with AI",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": ["index.js", "dist", "README.md"],
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/index.js --external:@opencode-ai/plugin"
   },
@@ -23,10 +23,11 @@
   },
   "homepage": "https://devglobe.app",
   "peerDependencies": {
-    "@opencode-ai/plugin": ">=1.0.0"
+    "@opencode-ai/plugin": ">=1.18.29"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "^1.3.0",
+    "@opencode-ai/plugin": "^1.19.4",
+    "@opencode/plugin": "^2.0.29",
     "esbuild": "^0.24.0",
     "typescript": "^5.5.0",
     "@types/node": "^20.0.0"
