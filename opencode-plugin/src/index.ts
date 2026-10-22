@@ -123,7 +123,8 @@ const emptySchema = {
 const v2Plugin: Plugin.Plugin = {
   id: "devglobe",
   async setup(ctx) {
-    const heartbeat = createHeartbeat(ctx.location.directory);
+    const directory = ctx.location.directory;
+    const heartbeat = createHeartbeat(directory);
 
     await ctx.tool.transform((editor) => {
       editor.add({
@@ -162,6 +163,8 @@ const v2Plugin: Plugin.Plugin = {
     const controller = new AbortController();
     void (async () => {
       for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+        // The event stream is global; ignore sessions from other projects.
+        if (event.location?.directory !== directory) continue;
         if (event.type === "session.idle" || event.type === "session.deleted") {
           await heartbeat(null, true);
         }
