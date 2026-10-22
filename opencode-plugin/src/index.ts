@@ -220,7 +220,8 @@ async function legacyPlugin(input: PluginInput, _options?: PluginOptions): Promi
     event: async ({ event }) => {
       if (event.type === "file.edited") {
         const filePath = (event.properties as any)?.file ?? null;
-        await heartbeat(filePath, false);
+        // A 15s network timeout must not hold up OpenCode's file events.
+        void heartbeat(filePath, false);
       }
       if (event.type === "session.idle" || event.type === "session.deleted") {
         await heartbeat(null, true);
